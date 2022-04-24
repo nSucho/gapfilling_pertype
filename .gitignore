@@ -1,1 +1,7 @@
-original_data/
+original_data/2020/
+original_data/2021/
+data/
+areatypecode_list.txt
+countries_w_gaps.csv
+country_list.txt
+technology_list.txt
