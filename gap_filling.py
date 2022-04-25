@@ -12,9 +12,9 @@ def gapfill_main():
     :return:
     """
     year = '2021'
-    country = ''
-    atc = ''
-    technology = ''
+    country = 'IE_SEM'
+    atc = 'BZN'
+    technology = 'Fossil Peat'
 
     # unify the year to fill the gaps afterwards
     gap_filling_aux.unify_year(year, country, atc, technology)

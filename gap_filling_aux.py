@@ -16,10 +16,11 @@ def unify_year(year, country, areatypecode, technology):
 	:param technology:
 	:return:
 	"""
+	# TODO: regex stimmt nicht
 	# read in all the monthly csv-files of this country
 	files = glob.glob(
-		'data/' + str(year) + '/' + country + '/final_sorted_tech/??' + areatypecode + '_'
-		+ technology + '_[w|no]gaps.csv', recursive=False)
+		'data/'+str(year)+'/'+country+'/final_sorted_tech/??_'+areatypecode+'_' + technology+'_[w|no]gaps.csv',
+		recursive=False)
 
 	# concat to one dataframe and reset index
 	df_year = pd.concat([pd.read_csv(file, sep='\t', encoding='utf-8') for file in files])
