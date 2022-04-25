@@ -7,8 +7,8 @@ from datetime import datetime as dt
 from datetime import date
 import calendar
 
-import gap_length_analyser
-from auxiliary_methods import *
+import gap_filling_aux
+from readin_aux import *
 import pandas as pd
 import numpy as np
 from csv import *
