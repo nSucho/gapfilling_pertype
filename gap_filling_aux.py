@@ -5,9 +5,8 @@ Created on April 2022
 """
 import pandas as pd
 import glob
-import re
 
-
+# TODO: throws error with some combination of coun., atc, tech// vielleicht weil es manche combinationen nicht gibt (try-catch)
 def unify_year(year, country, areatypecode, technology):
 	"""
 
@@ -18,9 +17,8 @@ def unify_year(year, country, areatypecode, technology):
 	:return:
 	"""
 	# read in all the monthly csv-files of this combination of country, atc and technology
-	files = glob.glob(
-		'data/'+str(year)+'/'+country+'/final_sorted_tech/??_'+areatypecode+'_' + technology+'_?*',
-		recursive=False)
+	files = glob.glob('data/'+str(year)+'/'+country+'/final_sorted_tech/??_'+areatypecode+'_' + technology+'_?*',
+					  recursive=False)
 
 	# concat to one dataframe and reset index
 	df_year = pd.concat([pd.read_csv(file, sep='\t', encoding='utf-8') for file in files])

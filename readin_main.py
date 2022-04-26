@@ -38,7 +38,6 @@ def readin_data():
     # read in all the monthly csv-files of this country
     files = glob.glob('original_data/'+year+'/'+year+'_??_AggregatedGenerationPerType_16.1.B_C.csv', recursive=False)
     files.sort()
-    # TODO: txts zu csv machen um besser einzulesen
     for file in files:
         # get the month from the files
         df_path = pathlib.PurePath(file).parts[2]

@@ -6,7 +6,7 @@ Created on April 2022
 import os
 import pandas as pd
 
-# TODO: speichert header nicht als header
+
 def list_countries(file_df):
 	"""
 
@@ -18,8 +18,8 @@ def list_countries(file_df):
 	country_list = list(file_copy['MapCode'].drop_duplicates())
 	country_list.sort()
 
-	# create df from list and save as csv
-	country_df = pd.DataFrame(country_list, columns=['Country'])
+	# create df from list to save as csv
+	country_df = pd.DataFrame(country_list)
 	country_df.to_csv('country_list.csv', sep='\t', encoding='utf-8', index= False, header=['Countries'])
 
 	return country_list
@@ -36,8 +36,8 @@ def list_areatypecode(file_df):
 	areatypecode_list = list(file_copy['AreaTypeCode'].drop_duplicates())
 	areatypecode_list.sort()
 
-	# create df from list and save as csv
-	atc_df = pd.DataFrame(areatypecode_list, columns=['ATC'])
+	# create df from list to save as csv
+	atc_df = pd.DataFrame(areatypecode_list)
 	atc_df.to_csv('areatypecode_list.csv', sep='\t', encoding='utf-8', index=False, header=['AreaTypeCodes'])
 
 	return areatypecode_list
@@ -57,8 +57,8 @@ def list_technologies(file_df):
 	tech_list = list(map(lambda x: x.replace('Fossil Brown coal/Lignite', 'Fossil Brown coal Lignite'), tech_list))
 	tech_list.sort()
 
-	# create df from list and save as csv
-	tech_df = pd.DataFrame(tech_list, columns=['Technologies'])
+	# create df from list to save as csv
+	tech_df = pd.DataFrame(tech_list)
 	tech_df.to_csv('technology_list.csv', sep='\t', encoding='utf-8', index=False, header=['Technologies'])
 
 	return tech_list
