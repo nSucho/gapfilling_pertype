@@ -47,6 +47,7 @@ def main():
 	for file in files:
 		df_path = pathlib.PurePath(file).parts[2]
 		test_var1 = df_path[5:7]
+		print(test_var1)
 		# loop
 		for atc in atcodes:
 			for technology in technologies:

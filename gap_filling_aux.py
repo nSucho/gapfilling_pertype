@@ -5,6 +5,7 @@ Created on April 2022
 """
 import pandas as pd
 import glob
+import re
 
 
 def unify_year(year, country, areatypecode, technology):
@@ -16,10 +17,9 @@ def unify_year(year, country, areatypecode, technology):
 	:param technology:
 	:return:
 	"""
-	# TODO: regex stimmt nicht
-	# read in all the monthly csv-files of this country
+	# read in all the monthly csv-files of this combination of country, atc and technology
 	files = glob.glob(
-		'data/'+str(year)+'/'+country+'/final_sorted_tech/??_'+areatypecode+'_' + technology+'_[w|no]gaps.csv',
+		'data/'+str(year)+'/'+country+'/final_sorted_tech/??_'+areatypecode+'_' + technology+'_?*',
 		recursive=False)
 
 	# concat to one dataframe and reset index
@@ -29,22 +29,20 @@ def unify_year(year, country, areatypecode, technology):
 
 	# safe whole year as csv
 	df_year.to_csv(
-		'data/' + str(year) + '/' + country + '/' + str(year) + '_' + areatypecode + '_' + technology + '.csv',
+		'data/'+str(year)+'/'+country+'/'+str(year)+'_'+areatypecode+'_'+technology+'.csv',
 		sep='\t', encoding='utf-8', index=False,
-		header=["DateTime", "ResolutionCode", "AreaCode", "AreaTypeCode", "AreaName",
-				"MapCode", "TotalLoadValue", "UpdateTime"])
+		header=['DateTime', 'AreaTypeCode', 'MapCode', 'ProductionType', 'ActualGenerationOutput'])
 
 	# list the length of the gaps
 	analyze_gap_length(df_year, year, country, areatypecode, technology)
 
 
-def analyze_gap_length(check_df, year, month, country, areatypecode, technology):
+def analyze_gap_length(check_df, year, country, areatypecode, technology):
 	"""
 	analyze the gap-length per gap and the amount of the different gap-length
 
 	:param check_df:
 	:param year:
-	:param month:
 	:param country:
 	:param areatypecode:
 	:param technology:
@@ -88,17 +86,3 @@ def consecutive_nans(ds):
 	:return:
 	"""
 	return ds.isnull().astype(int).groupby(ds.notnull().astype(int).cumsum()).sum()
-
-
-if __name__ == '__main__':
-	# for testing reasons
-	year = 2021
-	month = 1
-	country = 'IE_SEM'
-	areatypecode = 'BZN'
-	technology = 'Fossil Gas'
-
-	check_df = pd.read_csv('data/'+str(year)+'/'+str(month)+'/'+country+'/final_sorted_tech/'+areatypecode+'/'
-						   + technology+'_'+str(month)+'.csv', sep='\t', encoding='utf-8')
-
-	analyze_gap_length(check_df, year, month, country, areatypecode, technology)

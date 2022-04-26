@@ -22,6 +22,7 @@ def readin_data():
     # start time to check how long program was running
     start_time = time.time()
 
+    # define the year of the data
     year = '2021'
 
     # reset the csv-file with the countries with gaps
@@ -37,7 +38,7 @@ def readin_data():
     # read in all the monthly csv-files of this country
     files = glob.glob('original_data/'+year+'/'+year+'_??_AggregatedGenerationPerType_16.1.B_C.csv', recursive=False)
     files.sort()
-
+    # TODO: txts zu csv machen um besser einzulesen
     for file in files:
         # get the month from the files
         df_path = pathlib.PurePath(file).parts[2]
@@ -52,24 +53,24 @@ def readin_data():
 
         # create list for all countries and save the list
         countries = list_countries(file_df)
-        with open("country_list.txt", "w") as file_object:
-            file_object.write(str(countries))
-            file_object.write("\n")
-            file_object.write("Amount of Countries: " + str(len(countries)))
+        #with open("country_list.txt", "w") as file_object:
+        #    file_object.write(str(countries))
+        #    file_object.write("\n")
+        #    file_object.write("Amount of Countries: " + str(len(countries)))
 
         # create list for all AreaTypeCodes and save the list
         atcodes = list_areatypecode(file_df)
-        with open("areatypecode_list.txt", "w") as file_object:
-            file_object.write(str(atcodes))
-            file_object.write("\n")
-            file_object.write("Amount of AreaTypeCodes: " + str(len(atcodes)))
+        #with open("areatypecode_list.txt", "w") as file_object:
+        #    file_object.write(str(atcodes))
+        #    file_object.write("\n")
+        #    file_object.write("Amount of AreaTypeCodes: " + str(len(atcodes)))
 
         # create list for all technologies and save the list
         technologies = list_technologies(file_df)
-        with open("technology_list.txt", "w") as file_object:
-            file_object.write(str(technologies))
-            file_object.write("\n")
-            file_object.write("Amount of technologies: "+str(len(technologies)))
+        #with open("technology_list.txt", "w") as file_object:
+        #    file_object.write(str(technologies))
+        #    file_object.write("\n")
+        #    file_object.write("Amount of technologies: "+str(len(technologies)))
 
         # find all gaps for each technologie per country
         for atcode in atcodes:
