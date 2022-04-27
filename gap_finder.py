@@ -37,6 +37,7 @@ def checkForGaps(file_df_original, areatypecode, country, technology, month, yea
 	create_path('data/'+str(year)+'/'+country+'/final_sorted_tech')
 	create_path('data/'+str(year)+'/'+country+'/gaplists_per_tech')
 
+	# some (country, ATC, Technology)-combinations do not exist, so catch the error for them
 	try:
 		# only take rows into 'act_gen_df' which are equal to our wanted attributes
 		act_gen_df = file_df.loc[(file_df["MapCode"] == country) & (file_df["ProductionType"] == technology) &
