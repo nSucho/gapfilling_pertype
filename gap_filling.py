@@ -5,6 +5,7 @@ Created on April 2022
 """
 import pandas as pd
 import gap_filling_aux
+import fedot_filling
 
 def gapfill_main():
     """
@@ -28,8 +29,9 @@ def gapfill_main():
             for country in countries_list:
                 # unify the year to fill the gaps afterwards
                 gap_filling_aux.unify_year(year, country, atcode, technology)
-    #TODO:gapfilling
 
+    # filling the gaps with fedot
+    fedot_filling.readin_fedot(year='2021', areatypecode='BZN', country='IE_SEM', technology='Fossil Peat')
 
 if __name__ == '__main__':
     gapfill_main()

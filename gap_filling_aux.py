@@ -83,7 +83,7 @@ def analyze_gap_length(check_df, year, country, areatypecode, technology):
 	calc_missing_data(check_df, year, country, areatypecode, technology)
 
 	consecutive_gaps.to_csv('data/'+str(year)+'/'+country+'/'+str(year)+'_'+areatypecode+'_'
-							+ technology+'_gaps_length.csv', sep='\t', encoding='utf-8', index=False,
+							+technology+'_gaps_length.csv', sep='\t', encoding='utf-8', index=False,
 							header=['GapLength', 'AmountInAGO'])
 
 
@@ -110,8 +110,7 @@ def calc_missing_data(df_to_check, year, country, areatypecode, technology):
 	# TODO: doesnt round
 	missing_df = pd.DataFrame([missing_percent], columns=['InTotalMissing'])
 	# save as csv
-	missing_df.to_csv('data/' + str(year) + '/' + country + '/' + str(year) + '_' + areatypecode + '_'
-							+ technology + '_missing_percent.csv', sep='\t', encoding='utf-8', index=False,
-							header=['InTotalMissing'])
+	missing_df.to_csv('data/'+str(year)+'/'+country+'/'+str(year)+'_'+areatypecode+'_'+technology+'_missing_percent.csv',
+					  sep='\t', encoding='utf-8', index=False, header=['InTotalMissing'])
 
 	#return missing_percent

@@ -16,6 +16,7 @@ from csv import *
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
+# TODO: overall main?
 def checkForGaps(file_df_original, areatypecode, country, technology, month, year):
 	"""
 	Checks 'file_df_original' for missing entries in the data

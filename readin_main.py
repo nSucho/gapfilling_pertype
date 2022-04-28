@@ -12,7 +12,6 @@ import pandas as pd
 import pathlib
 
 
-#TODO: maybe make input what u want to do(not always sort data cause it needs so much time)
 def readin_data():
     """
     read in needed data
