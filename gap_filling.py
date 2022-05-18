@@ -7,6 +7,7 @@ import pandas as pd
 import gap_filling_aux
 import fedot_filling
 
+
 def gapfill_main():
     """
 
@@ -32,6 +33,7 @@ def gapfill_main():
 
     # filling the gaps with fedot
     fedot_filling.readin_fedot(year='2021', areatypecode='BZN', country='IE_SEM', technology='Fossil Peat')
+
 
 if __name__ == '__main__':
     gapfill_main()

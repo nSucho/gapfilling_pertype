@@ -6,13 +6,12 @@ Created on April 2022
 from datetime import datetime as dt
 from datetime import date
 import calendar
-
 import gap_filling_aux
 from readin_aux import *
 import pandas as pd
 import numpy as np
 from csv import *
-
+pd.warnings.simplefilter(action='ignore', category=FutureWarning)
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
@@ -31,8 +30,9 @@ def checkForGaps(file_df_original, areatypecode, country, technology, month, yea
 	"""
 	file_df = file_df_original.copy()
 
-	# for saving the gaps-info later
+	# variable for saving the gaps-info later
 	field_names = ['Month', 'Country', 'Technology', 'AreaTypeCode', 'MissingPercentage']
+
 	# check if neccesary folders exist, else create
 	create_path('data/'+str(year)+'/'+country+'/raw_sorted_tech')
 	create_path('data/'+str(year)+'/'+country+'/final_sorted_tech')

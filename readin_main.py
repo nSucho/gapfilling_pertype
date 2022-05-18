@@ -3,8 +3,8 @@ Created on April 2022
 
 @author: Niko Suchowitz
 """
-from readin_aux import *
-from gap_finder import checkForGaps
+import readin_aux
+import gap_finder
 import glob
 import time
 from csv import *
@@ -24,7 +24,7 @@ def readin_data():
     # define the year of the data
     year = '2021'
 
-    # reset the csv-file with the countries with gaps
+    # reset the csv-file which shows which countries have gaps
     with open("countries_w_gaps.csv", "w") as csvfile:
         # create a writer object with the needed attributes
         writer_obj = writer(csvfile, delimiter='\t')
@@ -38,10 +38,11 @@ def readin_data():
     files = glob.glob('original_data/'+year+'/'+year+'_??_AggregatedGenerationPerType_16.1.B_C.csv', recursive=False)
     files.sort()
     for file in files:
-        # get the month from the files
+        # get the string of the month from the file-names
         df_path = pathlib.PurePath(file).parts[2]
         month = df_path[5:7]
 
+        #TODO: comment what is done here
         file_df = pd.read_csv(file, sep='\t', encoding='utf-8')
         file_df["DateTime"] = pd.to_datetime(file_df["DateTime"])
         file_df.sort_values(by='DateTime', inplace=True)
@@ -50,21 +51,24 @@ def readin_data():
         file_df = file_df.loc[:, ['DateTime', 'AreaTypeCode', 'MapCode', 'ProductionType', 'ActualGenerationOutput']]
 
         # create list for all countries and save the list
-        countries = list_countries(file_df)
+        countries = readin_aux.list_countries(file_df)
+        # if the list need to be checked for debug
         #with open("country_list.txt", "w") as file_object:
         #    file_object.write(str(countries))
         #    file_object.write("\n")
         #    file_object.write("Amount of Countries: " + str(len(countries)))
 
         # create list for all AreaTypeCodes and save the list
-        atcodes = list_areatypecode(file_df)
+        atcodes = readin_aux.list_areatypecode(file_df)
+        # if the list need to be checked for debug
         #with open("areatypecode_list.txt", "w") as file_object:
         #    file_object.write(str(atcodes))
         #    file_object.write("\n")
         #    file_object.write("Amount of AreaTypeCodes: " + str(len(atcodes)))
 
         # create list for all technologies and save the list
-        technologies = list_technologies(file_df)
+        technologies = readin_aux.list_technologies(file_df)
+        # if the list need to be checked for debug
         #with open("technology_list.txt", "w") as file_object:
         #    file_object.write(str(technologies))
         #    file_object.write("\n")
@@ -74,12 +78,13 @@ def readin_data():
         for atcode in atcodes:
             for technology in technologies:
                 for country in countries:
-                    checkForGaps(file_df, atcode, country, technology, month, year)
+                    gap_finder.checkForGaps(file_df, atcode, country, technology, month, year)
+
 
     # stop time to check how long program was running
     end_time = time.time()
     time_lapsed = end_time-start_time
-    time_convert(time_lapsed)
+    readin_aux.time_convert(time_lapsed)
 
 
 if __name__ == '__main__':
