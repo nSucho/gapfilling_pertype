@@ -24,9 +24,8 @@ def kalman_method(data_w_nan, country, year, atc, tech):
         :param tech:
         :return: the data with filled gaps (NaN)
         """
-    # copy the df so we do not change the original and drop unecessary columns
+    # copy the df so we do not change the original
     df_w_nan_copy = data_w_nan.copy()
-    df_w_nan_copy = df_w_nan_copy.loc[:, ['DateTime', 'ActualGenerationOutput']]
 
     # TODO: 2x2 möglichkeiten (smooth, nicht smooth, arima, structts)
     # values need to be a numeric vector
