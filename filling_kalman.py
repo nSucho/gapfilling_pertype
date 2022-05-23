@@ -27,7 +27,7 @@ def kalman_method(data_w_nan, country, year, atc, tech):
     # copy the df so we do not change the original
     df_w_nan_copy = data_w_nan.copy()
 
-    # TODO: 2x2 möglichkeiten (smooth, nicht smooth, arima, structts)
+    # TODO: 2x2 possibilities (smooth, not smooth, arima, structts)
     # values need to be a numeric vector
     w_gaps = np.ndarray.tolist(df_w_nan_copy['ActualGenerationOutput'].values)
     w_gaps = robjects.FloatVector(w_gaps)
@@ -46,6 +46,9 @@ def kalman_method(data_w_nan, country, year, atc, tech):
     # combine filled values with date and time again
     df_structts = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gaps_structts)], axis=1)
     df_arima = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gaps_arima)], axis=1)
+    # set header
+    df_structts.columns = ["DateTime", "ActualGenerationOutput"]
+    df_arima.columns = ["DateTime", "ActualGenerationOutput"]
 
     # save the combined df as csv
     pd.DataFrame(df_structts).to_csv(

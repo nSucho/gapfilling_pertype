@@ -59,6 +59,10 @@ def fedot_method(data_w_nan, country, year, atc, tech):
 	# combine filled values with date and time again
 	df_forward = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_forward)], axis=1)
 	df_bidirect = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_bidirect)], axis=1)
+	# set header
+	df_forward.columns = ["DateTime", "ActualGenerationOutput"]
+	df_bidirect.columns = ["DateTime", "ActualGenerationOutput"]
+
 	# save the combined df as csv
 	pd.DataFrame(df_forward).to_csv('data/'+str(year)+'/'+country+'/fedot/'+atc+'_'+tech+'_filled_forward.csv',
 											 sep='\t', encoding='utf-8', index=False, header=['DateTime', 'ActualGenerationOutput'])

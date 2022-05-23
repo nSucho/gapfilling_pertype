@@ -21,7 +21,7 @@ def main():
 	# start time to check how long program was running
 	start_time = time.time()
 
-	countries = ['IE_SEM']
+	countries = ['DE']
 	year = '2021'
 
 	# reset the csv file
@@ -108,8 +108,8 @@ def create_gaps(data_without_gaps, country, atc, technology):
 	# randomly set frac-amount of the data to np.nan
 	# frac = 0.1 means 10% of the data will be gaps
 	# for col in df.columns:
-	#	if col == 'ActualGenerationOutput':
-	#		df.loc[df.sample(frac=0.05).index, col] = np.nan
+	#if col == 'ActualGenerationOutput':
+	#	df.loc[df.sample(frac=0.05).index, col] = np.nan
 	df = df.drop(df.sample(frac=.6).index)
 
 	# save with the gaps inserted
