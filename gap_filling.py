@@ -3,9 +3,8 @@ Created on April 2022
 
 @author: Niko Suchowitz
 """
-import filling_fedot
 import pandas as pd
-
+import filling_fedot
 import filling_kalman
 
 
@@ -25,9 +24,9 @@ def gapfill_main():
                           technology + '.csv', sep='\t', encoding='utf-8')
 
     # filling the gaps with fedot
-    filling_fedot.fedot_method(file_df, country, year, areatypecode, technology)
+    #fedot_forward, fedot_bidirect = filling_fedot.fedot_method(file_df, country, year, areatypecode, technology)
     # filling the gaps with Kalman-filter
-    #filling_kalman.kalman_method(file_df, country, year, areatypecode, technology)
+    kalman_structs, kalman_arima = filling_kalman.kalman_method(file_df, country, year, areatypecode, technology)
 
 
 if __name__ == '__main__':

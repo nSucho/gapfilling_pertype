@@ -51,7 +51,7 @@ def fedot_method(data_w_nan, country, year, atc, tech):
 	time_lapsed = end_time-start_time
 	time_convert(time_lapsed)
 
-	# first check if folder exists
+	# first check if folder exists to save data in
 	isExist = os.path.exists('data/'+str(year)+'/'+country+'/fedot')
 	if not isExist:
 		os.makedirs('data/'+str(year)+'/'+country+'/fedot')
@@ -65,8 +65,7 @@ def fedot_method(data_w_nan, country, year, atc, tech):
 	pd.DataFrame(df_bidirect).to_csv('data/'+str(year)+'/'+country+'/fedot/'+atc+'_'+tech+'_filled_bidirect.csv',
 											  sep='\t', encoding='utf-8', index=False, header=['DateTime', 'ActualGenerationOutput'])
 
-	#return the filled gaps
-	#return without_gap_forward, without_gap_bidirect
+	return df_forward, df_bidirect
 
 
 def get_simple_ridge_pipeline():
