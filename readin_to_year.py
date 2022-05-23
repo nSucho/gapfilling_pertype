@@ -25,8 +25,9 @@ def unify_year(year, country, areatypecode, technology):
 
 		# concat to one dataframe and reset index
 		df_year = pd.concat([pd.read_csv(file, sep='\t', encoding='utf-8') for file in files])
-		df_year["DateTime"] = pd.to_datetime(df_year["DateTime"])
+		df_year['DateTime'] = pd.to_datetime(df_year['DateTime'])
 		df_year = df_year.reset_index(drop=True)
+		df_year.sort_values(by='DateTime', inplace=True)
 
 		# safe whole year as csv
 		df_year.to_csv(
@@ -84,7 +85,7 @@ def analyze_gap_length(check_df, year, country, areatypecode, technology):
 	calc_missing_data(check_df, year, country, areatypecode, technology)
 
 	consecutive_gaps.to_csv('data/'+str(year)+'/'+country+'/'+str(year)+'_'+areatypecode+'_'
-							+technology+'_gaps_length.csv', sep='\t', encoding='utf-8', index=False,
+							+ technology + '_gaps_length.csv', sep='\t', encoding='utf-8', index=False,
 							header=['GapLength', 'AmountInAGO'])
 
 

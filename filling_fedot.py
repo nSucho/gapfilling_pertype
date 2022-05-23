@@ -15,13 +15,6 @@ from fedot.core.pipelines.node import PrimaryNode, SecondaryNode
 from fedot.utilities.ts_gapfilling import ModelGapFiller
 
 
-def readin_fedot(country, year, areatypecode, technology):
-	""""""
-	file_df = pd.read_csv('data/'+str(year)+'/'+country+'/'+str(year)+'_'+areatypecode+'_'+technology+'.csv',
-						  sep='\t', encoding='utf-8')
-	fedot_method(file_df, country, year, areatypecode, technology)
-
-
 def fedot_method(data_w_nan, country, year, atc, tech):
 	"""
 	The autoML solution fedot
@@ -49,15 +42,16 @@ def fedot_method(data_w_nan, country, year, atc, tech):
 	start_time = time.time()
 
 	# Filling in the gaps
+	# TODO: filled with minus
 	without_gap_forward = model_gapfiller.forward_filling(time_series)
 	without_gap_bidirect = model_gapfiller.forward_inverse_filling(time_series)
 
-	#stop time to check how long FEDOT was running
+	# stop time to check how long FEDOT was running
 	end_time = time.time()
 	time_lapsed = end_time-start_time
 	time_convert(time_lapsed)
 
-	#first check if folder exists
+	# first check if folder exists
 	isExist = os.path.exists('data/'+str(year)+'/'+country+'/fedot')
 	if not isExist:
 		os.makedirs('data/'+str(year)+'/'+country+'/fedot')
@@ -66,7 +60,6 @@ def fedot_method(data_w_nan, country, year, atc, tech):
 	df_forward = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_forward)], axis=1)
 	df_bidirect = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_bidirect)], axis=1)
 	# save the combined df as csv
-	# TODO: saves strange, see files
 	pd.DataFrame(df_forward).to_csv('data/'+str(year)+'/'+country+'/fedot/'+atc+'_'+tech+'_filled_forward.csv',
 											 sep='\t', encoding='utf-8', index=False, header=['DateTime', 'ActualGenerationOutput'])
 	pd.DataFrame(df_bidirect).to_csv('data/'+str(year)+'/'+country+'/fedot/'+atc+'_'+tech+'_filled_bidirect.csv',
