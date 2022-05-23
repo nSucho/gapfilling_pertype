@@ -6,17 +6,17 @@ Created on April 2022
 from datetime import datetime as dt
 from datetime import date
 import calendar
-import gap_filling_aux
 from readin_aux import *
 import pandas as pd
 import numpy as np
-from csv import *
-pd.warnings.simplefilter(action='ignore', category=FutureWarning)
+import warnings
+
 pd.options.mode.chained_assignment = None  # default='warn'
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 # TODO: overall main?
-def checkForGaps(file_df_original, areatypecode, country, technology, month, year):
+def check_for_gaps(file_df_original, areatypecode, country, technology, month, year):
 	"""
 	Checks 'file_df_original' for missing entries in the data
 
@@ -29,14 +29,13 @@ def checkForGaps(file_df_original, areatypecode, country, technology, month, yea
 	:return:
 	"""
 	file_df = file_df_original.copy()
-
 	# variable for saving the gaps-info later
 	field_names = ['Month', 'Country', 'Technology', 'AreaTypeCode', 'MissingPercentage']
 
-	# check if neccesary folders exist, else create
-	create_path('data/'+str(year)+'/'+country+'/raw_sorted_tech')
-	create_path('data/'+str(year)+'/'+country+'/final_sorted_tech')
-	create_path('data/'+str(year)+'/'+country+'/gaplists_per_tech')
+	# check if necessary folders exist, else create
+	create_path('data/' + str(year) + '/' + country + '/raw_sorted_tech')
+	create_path('data/' + str(year) + '/' + country + '/final_sorted_tech')
+	create_path('data/' + str(year) + '/' + country + '/gaplists_per_tech')
 
 	# some (country, ATC, Technology)-combinations do not exist, so catch the error for them
 	try:
@@ -47,7 +46,7 @@ def checkForGaps(file_df_original, areatypecode, country, technology, month, yea
 		# sort by DateTime-column
 		# not needed: act_gen_df.sort_values(by='DateTime', inplace=True)
 
-		# if the 'DateTime' is not in hourly steps, we downsample to hours
+		# if the 'DateTime' is not in hourly steps, we down sample to hours
 		# first we have to set the 'DateTime' as index
 		act_gen_df = act_gen_df.set_index(['DateTime'])
 		# now resample
@@ -66,14 +65,14 @@ def checkForGaps(file_df_original, areatypecode, country, technology, month, yea
 			dayone = firsttimestamp.replace(day=1, hour=0)
 			# now add to the sorted DF sorted_df, add in -1 pos and then add one to overall-index
 			act_gen_df.loc[-1] = (dayone, areatypecode, country, technology, np.nan)
-			act_gen_df.index = act_gen_df.index+1
+			act_gen_df.index = act_gen_df.index + 1
 			act_gen_df.sort_values(by='DateTime', inplace=True)
 		# just to check if if-clause is working
-		#else:
-		#	print("first of the month is in list")
+		# else:
+		# print("first of the month is in list")
 
 		# now we check for the last of the month
-		lastindex = len(act_gen_df.index)-1
+		lastindex = len(act_gen_df.index) - 1
 		last_timestamp = act_gen_df['DateTime'].iloc[lastindex]
 		#  calendar.monthrange return a tuple
 		#  (weekday of first day of the month, number of days in month)
@@ -84,16 +83,17 @@ def checkForGaps(file_df_original, areatypecode, country, technology, month, yea
 			# if so we create a datetime with the last day and add it to the dataframe
 			last_day_as_date = dt(last_timestamp.year, last_timestamp.month, last_day_of_month, 23)
 			act_gen_df.loc[-1] = (last_day_as_date, areatypecode, country, technology, np.nan)
-			act_gen_df.index = act_gen_df.index+1
+			act_gen_df.index = act_gen_df.index + 1
 			act_gen_df.sort_values(by='DateTime', inplace=True)
 		# just to check if if-clause is working
-		#else:
-		#	print("last of the month is in list")
+		# else:
+		# print("last of the month is in list")
 
 		# print the auxiliary-dataframe into a csv
-		act_gen_df.to_csv('data/'+str(year)+'/'+country+'/raw_sorted_tech/'+str(month)+'_'+areatypecode+'_'+technology+'.csv',
-		                  sep='\t', encoding='utf-8', index=False,
-		                  header=['DateTime', 'AreaTypeCode', 'MapCode', 'ProductionType', 'ActualGenerationOutput'])
+		act_gen_df.to_csv('data/' + str(year) + '/' + country + '/raw_sorted_tech/' + str(
+			month) + '_' + areatypecode + '_' + technology + '.csv',
+						sep='\t', encoding='utf-8', index=False,
+						header=['DateTime', 'AreaTypeCode', 'MapCode', 'ProductionType', 'ActualGenerationOutput'])
 
 		"""iterate to find the gaps"""
 		# compare the date then time
@@ -114,39 +114,45 @@ def checkForGaps(file_df_original, areatypecode, country, technology, month, yea
 		gap_df = pd.DataFrame(gap_list)
 		# check if the gap-df is empty
 		if gap_df.empty:
-			#print("there are no gaps")
-			gap_df.to_csv('data/'+str(year)+'/'+country+'/gaplists_per_tech/'+str(month)+'_'+areatypecode+'_'
-			              + technology+'_empty.csv', sep='\t', encoding='utf-8', index=False)
+			# print("there are no gaps")
+			gap_df.to_csv(
+				'data/' + str(year) + '/' + country + '/gaplists_per_tech/' + str(month) + '_' + areatypecode + '_'
+				+ technology + '_empty.csv', sep='\t', encoding='utf-8', index=False)
 			# sort everything on the DateTime-column and save as csv
 			act_gen_df.sort_values(by='DateTime', inplace=True)
 			act_gen_df.reset_index(drop=True, inplace=True)
 			# save the final df as csv
-			act_gen_df.to_csv('data/'+str(year)+'/'+country+'/final_sorted_tech/'+str(month)+'_'+areatypecode+'_'
-			                  + technology+'_nogaps.csv', sep='\t', encoding='utf-8', index=False,
-			                  header=['DateTime', 'AreaTypeCode', 'MapCode', 'ProductionType', 'ActualGenerationOutput'])
+			act_gen_df.to_csv(
+				'data/' + str(year) + '/' + country + '/final_sorted_tech/' + str(month) + '_' + areatypecode + '_'
+				+ technology + '_nogaps.csv', sep='\t', encoding='utf-8', index=False,
+				header=['DateTime', 'AreaTypeCode', 'MapCode', 'ProductionType', 'ActualGenerationOutput'])
 		else:
-			gap_df.to_csv('data/'+str(year)+'/'+country+'/gaplists_per_tech/'+str(month)+'_'+areatypecode+'_'
-			              + technology+'.csv', sep='\t', encoding='utf-8', index=False,
-			              header=['DateTime', 'AreaTypeCode', 'MapCode', 'ProductionType', 'ActualGenerationOutput'])
+			gap_df.to_csv(
+				'data/' + str(year) + '/' + country + '/gaplists_per_tech/' + str(month) + '_' + areatypecode + '_'
+				+ technology + '.csv', sep='\t', encoding='utf-8', index=False,
+				header=['DateTime', 'AreaTypeCode', 'MapCode', 'ProductionType', 'ActualGenerationOutput'])
 			# concat both csv to have a list with filled in gaps then save as csv
-			sorted_tech_csv = pd.read_csv('data/'+str(year)+'/'+country+'/raw_sorted_tech/'+str(month)+'_'
-			                              + areatypecode+'_'+technology+'.csv', sep='\t', encoding='utf-8')
-			gap_list_csv = pd.read_csv('data/'+str(year)+'/'+country+'/gaplists_per_tech/'+str(month)+'_'
-			                           + areatypecode+'_'+technology+'.csv', sep='\t', encoding='utf-8')
+			sorted_tech_csv = pd.read_csv('data/' + str(year) + '/' + country + '/raw_sorted_tech/' + str(month) + '_' +
+										areatypecode + '_' + technology + '.csv', sep='\t', encoding='utf-8')
+			gap_list_csv = pd.read_csv('data/' + str(year) + '/' + country + '/gaplists_per_tech/' + str(month) + '_' +
+									areatypecode + '_' + technology + '.csv', sep='\t', encoding='utf-8')
 			dataframes = [sorted_tech_csv, gap_list_csv]
 			final_df = pd.concat(dataframes)
 			# sort everything on the DateTime-column and save as csv
 			final_df.sort_values(by='DateTime', inplace=True)
 			final_df.reset_index(drop=True, inplace=True)
 			# save the final df as csv
-			final_df.to_csv('data/'+str(year)+'/'+country+'/final_sorted_tech/'+str(month)+'_'+areatypecode+'_'
-			                + technology+'_wgaps.csv', sep='\t', encoding='utf-8', index=False,
-			                header=['DateTime', 'AreaTypeCode', 'MapCode', 'ProductionType', 'ActualGenerationOutput'])
+			final_df.to_csv(
+				'data/' + str(year) + '/' + country + '/final_sorted_tech/' + str(month) + '_' + areatypecode + '_'
+				+ technology + '_wgaps.csv', sep='\t', encoding='utf-8', index=False,
+				header=['DateTime', 'AreaTypeCode', 'MapCode', 'ProductionType', 'ActualGenerationOutput'])
 
+			# TODO: kann wahrscheinlich raus
+			"""
 			# calc missing data in percent and put into list to have an overview
 			missing_percent_o = round(calc_missing_data(final_df), 2)
 			gap_dict = {'Month': month, 'Country': country, 'Technology': technology, 'AreaTypeCode': areatypecode,
-			            'MissingPercentage': missing_percent_o}
+						'MissingPercentage': missing_percent_o}
 
 			# save the country in the csv of countries with gaps
 			with open("countries_w_gaps.csv", "a") as csvfile:
@@ -154,9 +160,10 @@ def checkForGaps(file_df_original, areatypecode, country, technology, month, yea
 				dictwriter_object = DictWriter(csvfile, delimiter='\t', fieldnames=field_names)
 				# write the dict into the csv
 				dictwriter_object.writerow(gap_dict)
+			"""
 
 	except Exception as e:
-		#print("Error is found: "+str(e)+"||"+country+"--"+str(month)+"--"+areatypecode+"--"+technology)
+		# print("Error is found: "+str(e)+"||"+country+"--"+str(month)+"--"+areatypecode+"--"+technology)
 		pass
 
 
@@ -171,12 +178,12 @@ def gap_list_creator(old_date, new_date, gap_list, areatypecode, country, techno
 	The following inputs are just for proper saving
 	:param areatypecode: MBA, BZN, CTA or CTY
 	:param country: code for the country
-	:param technology: tehnology used
+	:param technology: technology used
 
 	:return: updated list of gaps found in data
 	"""
 	# add an hour to check for gap
-	old_h_added = old_date+pd.Timedelta(1, unit='H')
+	old_h_added = old_date + pd.Timedelta(1, unit='H')
 
 	# if old_h_added is same or bigger than new_date we have no gap
 	if old_h_added >= new_date:

@@ -5,6 +5,7 @@ Created on April 2022
 """
 import pandas as pd
 import glob
+import csv
 
 
 def unify_year(year, country, areatypecode, technology):
@@ -108,9 +109,23 @@ def calc_missing_data(df_to_check, year, country, areatypecode, technology):
 	missing_percent = (missing_data_o/len(df_to_check.index))*100
 	# turn into dataframe
 	# TODO: doesnt round
-	missing_df = pd.DataFrame([missing_percent], columns=['InTotalMissing'])
+	# TODO: kann wahrscheinlich raus
+	#missing_df = pd.DataFrame([missing_percent], columns=['InTotalMissing'])
 	# save as csv
-	missing_df.to_csv('data/'+str(year)+'/'+country+'/'+str(year)+'_'+areatypecode+'_'+technology+'_missing_percent.csv',
-					  sep='\t', encoding='utf-8', index=False, header=['InTotalMissing'])
+	#missing_df.to_csv('data/'+str(year)+'/'+country+'/'+str(year)+'_'+areatypecode+'_'+technology+'_missing_percent.csv',
+	#				  sep='\t', encoding='utf-8', index=False, header=['InTotalMissing'])
+
+	# variable for saving the gaps-info later
+	field_names = ['Year', 'Country', 'Technology', 'AreaTypeCode', 'MissingPercentage']
+	gap_dict = {'Year': year, 'Country': country, 'Technology': technology, 'AreaTypeCode': areatypecode,
+				'MissingPercentage': missing_percent}
+
+	# save the country in the csv of countries with gaps
+	with open("countries_w_gaps.csv", "a") as csvfile:
+		# create a dict_writer object with the needed attributes
+		dictwriter_object = csv.DictWriter(csvfile, delimiter='\t', fieldnames=field_names)
+		# write the dict into the csv
+		dictwriter_object.writerow(gap_dict)
+
 
 	#return missing_percent

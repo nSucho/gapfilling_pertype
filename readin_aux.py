@@ -1,6 +1,8 @@
 """
 Created on April 2022
 
+couple of auxiliary functions for read_in.py
+
 @author: Niko Suchowitz
 """
 import os

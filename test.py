@@ -10,6 +10,7 @@ import time
 from csv import *
 import pandas as pd
 import pathlib
+import readin_to_year
 
 
 def main():
@@ -28,7 +29,7 @@ def main():
 		# create a dict_writer object with the needed attributes
 		writer_obj = writer(csvfile, delimiter='\t')
 		# write the header into the csv
-		writer_obj.writerow(['Month', 'Country', 'Technology', 'AreaTypeCode', 'MissingPercentage'])
+		writer_obj.writerow(['Year', 'Country', 'Technology', 'AreaTypeCode', 'MissingPercentage'])
 
 	# read in all the monthly csv-files of this country
 	files = glob.glob('original_data/' + year + '/' + year + '_??_AggregatedGenerationPerType_16.1.B_C.csv',
@@ -76,7 +77,14 @@ def main():
 		for atcode in atcodes:
 			for technology in technologies:
 				for country in countries:
-					gap_finder.checkForGaps(file_df, atcode, country, technology, month, year)
+					gap_finder.check_for_gaps(file_df, atcode, country, technology, month, year)
+		# TODO: need of double loop?
+		# unify for every combination the year
+		for atcode in atcodes:
+			for technology in technologies:
+				for country in countries:
+					# unify the year to fill the gaps afterwards
+					readin_to_year.unify_year(year, country, atcode, technology)
 
 	# stop time to check how long program was running
 	end_time = time.time()
