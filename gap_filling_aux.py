@@ -8,27 +8,59 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pylab import rcParams
+
 rcParams['figure.figsize'] = 18, 7
 np.random.seed(10)
 
 
 def validation(original, filled_gaps):
-    vali_dict = {'mae': mean_absolute_error(original, filled_gaps),
-                 'rmse': np.sqrt(mean_squared_error(original, filled_gaps)), 'r2': r2_score(original, filled_gaps)}
+    """
+
+    :param original:
+    :type original:
+    :param filled_gaps:
+    :type filled_gaps:
+    :return:
+    :rtype:
+    """
+    vali_dict = {'mae':mean_absolute_error(original, filled_gaps),
+                 'rmse':np.sqrt(mean_squared_error(original, filled_gaps)), 'r2':r2_score(original, filled_gaps)}
 
     return vali_dict
 
 
 def read_in(year, atc, country, tech, create_gaps):
+    """
+
+    :param year:
+    :type year:
+    :param atc:
+    :type atc:
+    :param country:
+    :type country:
+    :param tech:
+    :type tech:
+    :param create_gaps:
+    :type create_gaps:
+    :return:
+    :rtype:
+    """
     # read in the file
     original = pd.read_csv('data/' + str(year) + '/' + country + '/' + str(year) + '_' + atc + '_' +
-                          tech + '.csv', sep='\t', encoding='utf-8')
+                           tech + '.csv', sep='\t', encoding='utf-8')
     if create_gaps:
         data_w_nan = insert_the_gaps(original)
     return original, data_w_nan
 
 
 def insert_the_gaps(original):
+    """
+
+    :param original:
+    :type original:
+    :return:
+    :rtype:
+    """
     # create copy so we do not change original
     original_copy = original.copy()
 
@@ -42,13 +74,37 @@ def insert_the_gaps(original):
 
 # TODO: macht nicht so geiles Zeug
 def save_validation(dict):
+    """
+
+    :param dict:
+    :type dict:
+    :return:
+    :rtype:
+    """
     for values in dict:
         with open("results.txt", "a") as file_object:
-            file_object.write(values+': ' + str(dict[values]))
+            file_object.write(values + ': ' + str(dict[values]))
             file_object.write("\n")
 
 
 def plot_filling(original, mask, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima):
+    """
+
+    :param original:
+    :type original:
+    :param mask:
+    :type mask:
+    :param fedot_fwrd:
+    :type fedot_fwrd:
+    :param fedot_bi:
+    :type fedot_bi:
+    :param kalman_struct:
+    :type kalman_struct:
+    :param kalman_arima:
+    :type kalman_arima:
+    :return:
+    :rtype:
+    """
     # TODO: first sample to month then plot all into same plot with different colours
     plt.plot(original, c='blue', alpha=0.4, label='Actual values in the gaps')
     plt.plot(fedot_fwrd, c='red', alpha=0.8, label='Forward')
@@ -66,10 +122,14 @@ def plot_filling(original, mask, fedot_fwrd, fedot_bi, kalman_struct, kalman_ari
 # TODO: kick out later
 def readin_test(year, country, atc, tech, name, method1, method2):
     # read in the file
-    file_one = pd.read_csv('data/'+str(year)+'/'+country+'/'+name+'/'+atc+'_'+tech+'_filled_'+method1+'.csv', sep='\t',
-                           encoding='utf-8')
-    file_two = pd.read_csv('data/'+str(year)+'/'+country+'/'+name+'/'+atc+'_'+tech+'_filled_'+method2+'.csv', sep='\t',
-                           encoding='utf-8')
+    file_one = pd.read_csv(
+        'data/' + str(year) + '/' + country + '/' + name + '/' + atc + '_' + tech + '_filled_' + method1 + '.csv',
+        sep='\t',
+        encoding='utf-8')
+    file_two = pd.read_csv(
+        'data/' + str(year) + '/' + country + '/' + name + '/' + atc + '_' + tech + '_filled_' + method2 + '.csv',
+        sep='\t',
+        encoding='utf-8')
     return file_one, file_two
 
 
@@ -80,5 +140,4 @@ def round(dataframe):
     dataframe['ActualGenerationOutput'] = round(dataframe.resample('M').mean()['ActualGenerationOutput'])
     dataframe.dropna(subset=["ActualGenerationOutput"], inplace=True)
     dataframe.reset_index(inplace=True)
-
     return dataframe

@@ -8,6 +8,7 @@ import pandas as pd
 import os
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
+
 imputeTS = importr('imputeTS')
 kalman_StructTs = robjects.r['na_kalman']
 kalman_auto_arima = robjects.r['na_kalman']
@@ -15,15 +16,20 @@ kalman_auto_arima = robjects.r['na_kalman']
 
 def kalman_method(data_w_nan, country, year, atc, tech):
     """
-    The kalman-filter
 
-    :param data_w_nan: the data with gaps (NaN) to fill
+    :param data_w_nan:
+    :type data_w_nan:
     :param country:
-        :param year:
-        :param atc:
-        :param tech:
-        :return: the data with filled gaps (NaN)
-        """
+    :type country:
+    :param year:
+    :type year:
+    :param atc:
+    :type atc:
+    :param tech:
+    :type tech:
+    :return:
+    :rtype:
+    """
     # copy the df so we do not change the original
     df_w_nan_copy = data_w_nan.copy()
 

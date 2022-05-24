@@ -7,6 +7,8 @@ Needs Python 3.8 for FEDOT
 1. readin_main.py
    -> Reads in every month of the year and checks it for gaps for every combination of 'AreaTypeCode', 'technology' and
    'country'
-   -> afterwards unifies the all months  to one file
+   -> afterwards unifies the all months to one file
 2. gap_filling.py
-   -> 
+   -> reads in the yearly-file with the specified values and creates gaps in that file
+   -> fills gaps with the different methods
+   ->

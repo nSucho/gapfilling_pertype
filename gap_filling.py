@@ -14,6 +14,7 @@ def gapfill_main():
     """
 
     :return:
+    :rtype:
     """
     # setting the values
     year = '2021'
@@ -27,7 +28,7 @@ def gapfill_main():
     original_series = np.array(original['ActualGenerationOutput'])
 
     # filling the gaps with fedot and calculate the validation values
-    #fedot_fwrd, fedot_bi = filling_fedot.fedot_method(data_w_nan, country, year, atc, tech)
+    # fedot_fwrd, fedot_bi = filling_fedot.fedot_method(data_w_nan, country, year, atc, tech)
 
     # TODO: kick out again
     # for testing read in files instead of fill
@@ -41,7 +42,7 @@ def gapfill_main():
     fedot_bi_dict = gap_filling_aux.validation(original_series, fedot_bi_series)
 
     # filling the gaps with Kalman-filter and calculate the validation values
-    #kalman_struct, kalman_arima = filling_kalman.kalman_method(data_w_nan, country, year, areatypecode, technology)
+    # kalman_struct, kalman_arima = filling_kalman.kalman_method(data_w_nan, country, year, areatypecode, technology)
 
     # TODO: kick out again
     # for testing read in files instead of fill
@@ -54,8 +55,8 @@ def gapfill_main():
     kalman_struct_dict = gap_filling_aux.validation(original_series, kalman_struct_series)
     kalman_arima_dict = gap_filling_aux.validation(original_series, kalman_arima_series)
 
-    #print('FEDOT: ', fedot_fwrd_dict, fedot_bi_dict)
-    #print('Kalman: ', kalman_struct_dict, kalman_arima_dict)
+    # print('FEDOT: ', fedot_fwrd_dict, fedot_bi_dict)
+    # print('Kalman: ', kalman_struct_dict, kalman_arima_dict)
 
     # Make masked array for visualisation
     mask = np.ma.masked_where(data_w_nan['ActualGenerationOutput'] == np.nan, data_w_nan['ActualGenerationOutput'])

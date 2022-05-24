@@ -16,85 +16,94 @@ from fedot.utilities.ts_gapfilling import ModelGapFiller
 
 
 def fedot_method(data_w_nan, country, year, atc, tech):
-	"""
-	The autoML solution fedot
-	:param data_w_nan: the data with gaps (NaN) to fill
-	:param country:
-	:param year:
-	:param atc:
-	:param tech:
-	:return: the data with filled gaps (NaN)
-	"""
-	# copy the df so we do not change the original
-	df_w_nan_copy = data_w_nan.copy()
-	# fill the nan with '-100' so fedot can work with it
-	df_w_nan_copy = df_w_nan_copy.fillna(-100)
+    """
 
-	# Got univariate time series as numpy array
-	time_series = np.array(df_w_nan_copy['ActualGenerationOutput'])
+    :param data_w_nan:
+    :type data_w_nan:
+    :param country:
+    :type country:
+    :param year:
+    :type year:
+    :param atc:
+    :type atc:
+    :param tech:
+    :type tech:
+    :return:
+    :rtype:
+    """
+    # copy the df so we do not change the original
+    df_w_nan_copy = data_w_nan.copy()
+    # fill the nan with '-100' so fedot can work with it
+    df_w_nan_copy = df_w_nan_copy.fillna(-100)
 
-	# create a pipeline and defines the values which count as gaps
-	pipeline = get_simple_ridge_pipeline()
-	model_gapfiller = ModelGapFiller(gap_value=-100.0,
-	                                 pipeline=pipeline)
+    # Got univariate time series as numpy array
+    time_series = np.array(df_w_nan_copy['ActualGenerationOutput'])
 
-	# start time to check how long FEDOT was running
-	start_time = time.time()
+    # create a pipeline and defines the values which count as gaps
+    pipeline = get_simple_ridge_pipeline()
+    model_gapfiller = ModelGapFiller(gap_value=-100.0,
+                                     pipeline=pipeline)
 
-	# Filling in the gaps
-	# TODO: filled with minus
-	without_gap_forward = model_gapfiller.forward_filling(time_series)
-	without_gap_bidirect = model_gapfiller.forward_inverse_filling(time_series)
+    # start time to check how long FEDOT was running
+    start_time = time.time()
 
-	# stop time to check how long FEDOT was running
-	end_time = time.time()
-	time_lapsed = end_time-start_time
-	time_convert(time_lapsed)
+    # Filling in the gaps
+    # TODO: filled with minus
+    without_gap_forward = model_gapfiller.forward_filling(time_series)
+    without_gap_bidirect = model_gapfiller.forward_inverse_filling(time_series)
 
-	# first check if folder exists to save data in
-	isExist = os.path.exists('data/'+str(year)+'/'+country+'/fedot')
-	if not isExist:
-		os.makedirs('data/'+str(year)+'/'+country+'/fedot')
+    # stop time to check how long FEDOT was running
+    end_time = time.time()
+    time_lapsed = end_time - start_time
+    time_convert(time_lapsed)
 
-	# combine filled values with date and time again
-	df_forward = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_forward)], axis=1)
-	df_bidirect = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_bidirect)], axis=1)
-	# set header
-	df_forward.columns = ["DateTime", "ActualGenerationOutput"]
-	df_bidirect.columns = ["DateTime", "ActualGenerationOutput"]
+    # first check if folder exists to save data in
+    isExist = os.path.exists('data/' + str(year) + '/' + country + '/fedot')
+    if not isExist:
+        os.makedirs('data/' + str(year) + '/' + country + '/fedot')
 
-	# save the combined df as csv
-	pd.DataFrame(df_forward).to_csv('data/'+str(year)+'/'+country+'/fedot/'+atc+'_'+tech+'_filled_forward.csv',
-											 sep='\t', encoding='utf-8', index=False, header=['DateTime', 'ActualGenerationOutput'])
-	pd.DataFrame(df_bidirect).to_csv('data/'+str(year)+'/'+country+'/fedot/'+atc+'_'+tech+'_filled_bidirect.csv',
-											  sep='\t', encoding='utf-8', index=False, header=['DateTime', 'ActualGenerationOutput'])
+    # combine filled values with date and time again
+    df_forward = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_forward)], axis=1)
+    df_bidirect = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_bidirect)], axis=1)
+    # set header
+    df_forward.columns = ["DateTime", "ActualGenerationOutput"]
+    df_bidirect.columns = ["DateTime", "ActualGenerationOutput"]
 
-	return df_forward, df_bidirect
+    # save the combined df as csv
+    pd.DataFrame(df_forward).to_csv(
+        'data/' + str(year) + '/' + country + '/fedot/' + atc + '_' + tech + '_filled_forward.csv',
+        sep='\t', encoding='utf-8', index=False, header=['DateTime', 'ActualGenerationOutput'])
+    pd.DataFrame(df_bidirect).to_csv(
+        'data/' + str(year) + '/' + country + '/fedot/' + atc + '_' + tech + '_filled_bidirect.csv',
+        sep='\t', encoding='utf-8', index=False, header=['DateTime', 'ActualGenerationOutput'])
+
+    return df_forward, df_bidirect
 
 
 def get_simple_ridge_pipeline():
-	"""
-	Function for creating pipeline
-	:return: the pipeline
-	"""
-	node_lagged = PrimaryNode('lagged')
-	node_lagged.custom_params = {'window_size': 200}
+    """
 
-	node_final = SecondaryNode('ridge', nodes_from=[node_lagged])
-	pipeline = Pipeline(node_final)
+    :return:
+    :rtype:
+    """
+    node_lagged = PrimaryNode('lagged')
+    node_lagged.custom_params = {'window_size': 200}
 
-	return pipeline
+    node_final = SecondaryNode('ridge', nodes_from=[node_lagged])
+    pipeline = Pipeline(node_final)
+
+    return pipeline
 
 
 def time_convert(sec):
-	"""
-	converts the time from seconds to minutes and hours
-	:param sec: time passed in seconds
-	:return:
-	"""
-	mins = sec // 60
-	secs = sec % 60
-	hours = mins // 60
-	mins = mins % 60
+    """
+    converts the time from seconds to minutes and hours
+    :param sec: time passed in seconds
+    :return:
+    """
+    mins = sec // 60
+    secs = sec % 60
+    hours = mins // 60
+    mins = mins % 60
 
-	print("Time needed for FEDOT = {0}:{1}:{2}".format(int(hours), int(mins), int(secs)))
+    print("Time needed for FEDOT = {0}:{1}:{2}".format(int(hours), int(mins), int(secs)))
