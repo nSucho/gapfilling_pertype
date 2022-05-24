@@ -8,6 +8,8 @@ import filling_fedot
 import filling_kalman
 import gap_filling_aux
 import numpy as np
+import time
+import readin_aux # only for the time calculation
 
 
 def gapfill_main():
@@ -16,6 +18,9 @@ def gapfill_main():
     :return:
     :rtype:
     """
+    # start time to check how long program was running
+    start_time = time.time()
+
     # setting the values
     year = '2021'
     atc = 'CTY'
@@ -28,11 +33,11 @@ def gapfill_main():
     original_series = np.array(original['ActualGenerationOutput'])
 
     # filling the gaps with fedot and calculate the validation values
-    # fedot_fwrd, fedot_bi = filling_fedot.fedot_method(data_w_nan, country, year, atc, tech)
+    fedot_fwrd, fedot_bi = filling_fedot.fedot_method(data_w_nan, country, year, atc, tech)
 
     # TODO: kick out again
     # for testing read in files instead of fill
-    fedot_fwrd, fedot_bi = gap_filling_aux.readin_test(year, country, atc, tech, 'fedot', 'forward', 'bidirect')
+    #fedot_fwrd, fedot_bi = gap_filling_aux.readin_test(year, country, atc, tech, 'fedot', 'forward', 'bidirect')
 
     # create an array to calculate the validation
     fedot_fwrd_series = np.array(fedot_fwrd['ActualGenerationOutput'])
@@ -42,11 +47,11 @@ def gapfill_main():
     fedot_bi_dict = gap_filling_aux.validation(original_series, fedot_bi_series)
 
     # filling the gaps with Kalman-filter and calculate the validation values
-    # kalman_struct, kalman_arima = filling_kalman.kalman_method(data_w_nan, country, year, areatypecode, technology)
+    kalman_struct, kalman_arima = filling_kalman.kalman_method(data_w_nan, country, year, atc, tech)
 
     # TODO: kick out again
     # for testing read in files instead of fill
-    kalman_struct, kalman_arima = gap_filling_aux.readin_test(year, country, atc, tech, 'kalman', 'structts', 'arima')
+    #kalman_struct, kalman_arima = gap_filling_aux.readin_test(year, country, atc, tech, 'kalman', 'structts', 'arima')
 
     # create an array to calculate the validation
     kalman_struct_series = np.array(kalman_struct['ActualGenerationOutput'])
@@ -55,14 +60,19 @@ def gapfill_main():
     kalman_struct_dict = gap_filling_aux.validation(original_series, kalman_struct_series)
     kalman_arima_dict = gap_filling_aux.validation(original_series, kalman_arima_series)
 
-    # print('FEDOT: ', fedot_fwrd_dict, fedot_bi_dict)
-    # print('Kalman: ', kalman_struct_dict, kalman_arima_dict)
+    print('FEDOT: ', fedot_fwrd_dict, fedot_bi_dict)
+    print('Kalman: ', kalman_struct_dict, kalman_arima_dict)
 
     # Make masked array for visualisation
-    mask = np.ma.masked_where(data_w_nan['ActualGenerationOutput'] == np.nan, data_w_nan['ActualGenerationOutput'])
+    #mask = np.ma.masked_where(data_w_nan['ActualGenerationOutput'] == np.nan, data_w_nan['ActualGenerationOutput'])
     # plot
-    gap_filling_aux.plot_filling(original_series, mask, fedot_fwrd_series, fedot_bi_series, kalman_struct_series,
-                                 kalman_arima_series)
+    #gap_filling_aux.plot_filling(original_series, mask, fedot_fwrd_series, fedot_bi_series, kalman_struct_series,
+    #                             kalman_arima_series)
+
+    # stop time to check how long program was running
+    end_time = time.time()
+    time_lapsed = end_time - start_time
+    readin_aux.time_convert(time_lapsed)
 
 
 if __name__ == '__main__':
