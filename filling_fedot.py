@@ -15,7 +15,7 @@ from fedot.core.pipelines.node import PrimaryNode, SecondaryNode
 from fedot.utilities.ts_gapfilling import ModelGapFiller
 
 
-def fedot_method(data_w_nan, country, year, atc, tech):
+def fedot_frwd_bi(data_w_nan, country, year, atc, tech):
     """
 
     :param data_w_nan:
@@ -33,6 +33,7 @@ def fedot_method(data_w_nan, country, year, atc, tech):
     """
     # copy the df so we do not change the original
     df_w_nan_copy = data_w_nan.copy()
+
     # fill the nan with '-100' so fedot can work with it
     df_w_nan_copy = df_w_nan_copy.fillna(-100)
 
@@ -44,18 +45,10 @@ def fedot_method(data_w_nan, country, year, atc, tech):
     model_gapfiller = ModelGapFiller(gap_value=-100.0,
                                      pipeline=pipeline)
 
-    # start time to check how long FEDOT was running
-    start_time = time.time()
-
     # Filling in the gaps
     # TODO: filled with minus
     without_gap_forward = model_gapfiller.forward_filling(time_series)
     without_gap_bidirect = model_gapfiller.forward_inverse_filling(time_series)
-
-    # stop time to check how long FEDOT was running
-    end_time = time.time()
-    time_lapsed = end_time - start_time
-    time_convert(time_lapsed)
 
     # first check if folder exists to save data in
     isExist = os.path.exists('data/' + str(year) + '/' + country + '/fedot')
@@ -95,15 +88,83 @@ def get_simple_ridge_pipeline():
     return pipeline
 
 
-def time_convert(sec):
+def fedot_ridge_composite(data_w_nan, country, year, atc, tech):
     """
-    converts the time from seconds to minutes and hours
-    :param sec: time passed in seconds
-    :return:
-    """
-    mins = sec // 60
-    secs = sec % 60
-    hours = mins // 60
-    mins = mins % 60
 
-    print("Time needed for FEDOT = {0}:{1}:{2}".format(int(hours), int(mins), int(secs)))
+    :param data_w_nan:
+    :type data_w_nan:
+    :param country:
+    :type country:
+    :param year:
+    :type year:
+    :param atc:
+    :type atc:
+    :param tech:
+    :type tech:
+    :return:
+    :rtype:
+    """
+    # copy the df so we do not change the original
+    df_w_nan_copy = data_w_nan.copy()
+
+    # fill the nan with '-100' so fedot can work with it
+    df_w_nan_copy = df_w_nan_copy.fillna(-100)
+
+    df_w_nan_copy['DateTime'] = pd.to_datetime(df_w_nan_copy['DateTime'])
+
+    # Filling in gaps based on inverted ridge regression model
+    ridge_pipeline = get_simple_pipeline()
+    ridge_gapfiller = ModelGapFiller(gap_value=-100.0,
+                                     pipeline=ridge_pipeline)
+    with_gap_array = np.array(df_w_nan_copy['ActualGenerationOutput'])
+    without_gap_arr_ridge = ridge_gapfiller.forward_inverse_filling(with_gap_array)
+
+    # Filling in gaps based on a pipeline of 5 models
+    composite_pipeline = get_composite_pipeline()
+    composite_gapfiller = ModelGapFiller(gap_value=-100.0,
+                                         pipeline=composite_pipeline)
+    without_gap_composite = composite_gapfiller.forward_filling(with_gap_array)
+
+    df_ridge = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_arr_ridge)], axis=1)
+    df_composite = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_composite)], axis=1)
+
+    df_ridge.columns = ["DateTime", "ActualGenerationOutput"]
+    df_composite.columns = ["DateTime", "ActualGenerationOutput"]
+
+    # save the combined df as csv
+    pd.DataFrame(df_ridge).to_csv(
+        'data/' + str(year) + '/' + country + '/fedot/' + atc + '_' + tech + '_filled_ridge.csv',
+        sep='\t', encoding='utf-8', index=False, header=['DateTime', 'ActualGenerationOutput'])
+    pd.DataFrame(df_composite).to_csv(
+        'data/' + str(year) + '/' + country + '/fedot/' + atc + '_' + tech + '_filled_composite.csv',
+        sep='\t', encoding='utf-8', index=False, header=['DateTime', 'ActualGenerationOutput'])
+
+    return df_ridge, df_composite
+
+
+def get_simple_pipeline():
+    """ Function returns simple pipeline """
+    node_lagged = PrimaryNode('lagged')
+    node_lagged.custom_params = {'window_size': 200}
+    node_ridge = SecondaryNode('ridge', nodes_from=[node_lagged])
+    ridge_pipeline = Pipeline(node_ridge)
+    return ridge_pipeline
+
+
+def get_composite_pipeline():
+    """
+    The function returns prepared pipeline of 5 models
+    :return: Pipeline object
+    """
+
+    node_1 = PrimaryNode('lagged')
+    node_1.custom_params = {'window_size': 200}
+    node_2 = PrimaryNode('lagged')
+    node_2.custom_params = {'window_size': 100}
+    node_linear_1 = SecondaryNode('linear', nodes_from=[node_1])
+    node_linear_2 = SecondaryNode('linear', nodes_from=[node_2])
+
+    node_final = SecondaryNode('ridge', nodes_from=[node_linear_1,
+                                                    node_linear_2])
+    pipeline = Pipeline(node_final)
+    return pipeline

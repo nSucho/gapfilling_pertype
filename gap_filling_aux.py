@@ -13,22 +13,6 @@ rcParams['figure.figsize'] = 18, 7
 np.random.seed(10)
 
 
-def validation(original, filled_gaps):
-    """
-
-    :param original:
-    :type original:
-    :param filled_gaps:
-    :type filled_gaps:
-    :return:
-    :rtype:
-    """
-    vali_dict = {'mae':mean_absolute_error(original, filled_gaps),
-                 'rmse':np.sqrt(mean_squared_error(original, filled_gaps)), 'r2':r2_score(original, filled_gaps)}
-
-    return vali_dict
-
-
 def read_in(year, atc, country, tech, create_gaps):
     """
 
@@ -72,28 +56,27 @@ def insert_the_gaps(original):
     return original_copy
 
 
-# TODO: macht nicht so geiles Zeug
-def save_validation(dict):
-    """
-
-    :param dict:
-    :type dict:
-    :return:
-    :rtype:
-    """
-    for values in dict:
-        with open("results.txt", "a") as file_object:
-            file_object.write(values + ': ' + str(dict[values]))
-            file_object.write("\n")
-
-
-def plot_filling(original, mask, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima):
+def validation(original, filled_gaps):
     """
 
     :param original:
     :type original:
-    :param mask:
-    :type mask:
+    :param filled_gaps:
+    :type filled_gaps:
+    :return:
+    :rtype:
+    """
+    vali_dict = {'mae': mean_absolute_error(original, filled_gaps),
+                 'rmse': np.sqrt(mean_squared_error(original, filled_gaps)), 'r2': r2_score(original, filled_gaps)}
+
+    return vali_dict
+
+
+def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima):
+    """
+
+    :param original:
+    :type original:
     :param fedot_fwrd:
     :type fedot_fwrd:
     :param fedot_bi:
@@ -111,7 +94,6 @@ def plot_filling(original, mask, fedot_fwrd, fedot_bi, kalman_struct, kalman_ari
     plt.plot(fedot_bi, c='orange', alpha=0.8, label='Bidirect')
     plt.plot(kalman_struct, c='green', alpha=0.8, label='StructTS')
     plt.plot(kalman_arima, c='purple', alpha=0.8, label='Arima')
-    plt.plot(mask, c='blue', alpha=1.0, linewidth=2)
     plt.ylabel('Value', fontsize=14)
     plt.xlabel('DateTime', fontsize=14)
     plt.legend(fontsize=14)
@@ -131,13 +113,3 @@ def readin_test(year, country, atc, tech, name, method1, method2):
         sep='\t',
         encoding='utf-8')
     return file_one, file_two
-
-
-# TODO: kick out later
-def round(dataframe):
-    dataframe["DateTime"] = pd.to_datetime(dataframe["DateTime"])
-    dataframe = dataframe.set_index(['DateTime'])
-    dataframe['ActualGenerationOutput'] = round(dataframe.resample('M').mean()['ActualGenerationOutput'])
-    dataframe.dropna(subset=["ActualGenerationOutput"], inplace=True)
-    dataframe.reset_index(inplace=True)
-    return dataframe
