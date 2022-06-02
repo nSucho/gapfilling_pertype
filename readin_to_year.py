@@ -129,13 +129,6 @@ def calc_missing_data(df_to_check, year, country, areatypecode, technology):
     # calc the percentage of missing data
     missing_data_o = df_to_check['ActualGenerationOutput'].isna().sum()
     missing_percent = (missing_data_o / len(df_to_check.index)) * 100
-    # turn into dataframe
-    # TODO: doesnt round
-    # TODO: kann wahrscheinlich raus
-    # missing_df = pd.DataFrame([missing_percent], columns=['InTotalMissing'])
-    # save as csv
-    # missing_df.to_csv('data/'+str(year)+'/'+country+'/'+str(year)+'_'+areatypecode+'_'+technology+'_missing_percent.csv',
-    #				  sep='\t', encoding='utf-8', index=False, header=['InTotalMissing'])
 
     # variable for saving the gaps-info later
     field_names = ['Year', 'Country', 'Technology', 'AreaTypeCode', 'MissingPercentage']

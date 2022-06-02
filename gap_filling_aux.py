@@ -7,9 +7,6 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from pylab import rcParams
-
-rcParams['figure.figsize'] = 18, 7
 np.random.seed(10)
 
 
@@ -32,6 +29,8 @@ def read_in(year, atc, country, tech, create_gaps):
     # read in the file
     original = pd.read_csv('data/' + str(year) + '/' + country + '/' + str(year) + '_' + atc + '_' +
                            tech + '.csv', sep='\t', encoding='utf-8')
+    # set 'DateTime' as datetime-type
+    original['DateTime'] = pd.to_datetime(original['DateTime'])
     if create_gaps:
         data_w_nan = insert_the_gaps(original)
     return original, data_w_nan
@@ -89,15 +88,26 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima):
     :rtype:
     """
     # TODO: first sample to month then plot all into same plot with different colours
-    plt.plot(original, c='blue', alpha=0.4, label='Actual values in the gaps')
-    plt.plot(fedot_fwrd, c='red', alpha=0.8, label='Forward')
-    plt.plot(fedot_bi, c='orange', alpha=0.8, label='Bidirect')
-    plt.plot(kalman_struct, c='green', alpha=0.8, label='StructTS')
-    plt.plot(kalman_arima, c='purple', alpha=0.8, label='Arima')
-    plt.ylabel('Value', fontsize=14)
-    plt.xlabel('DateTime', fontsize=14)
-    plt.legend(fontsize=14)
-    plt.grid()
+    #   still to close to plot properly
+
+    """
+    # reshape the data to monthly for overview-able plots
+    original['DateTime'] = pd.to_datetime(original['DateTime'])
+    original_monthly = original.resample('M', on='DateTime').mean()
+    fedot_fwrd['DateTime'] = pd.to_datetime(fedot_fwrd['DateTime'])
+    fedot_fwrd_monthly = fedot_fwrd.resample('M', on='DateTime').mean()
+    fedot_bi['DateTime'] = pd.to_datetime(fedot_bi['DateTime'])
+    fedot_bi_monthly = fedot_bi.resample('M', on='DateTime').mean()
+    kalman_struct['DateTime'] = pd.to_datetime(kalman_struct['DateTime'])
+    kalman_struct_monthly = kalman_struct.resample('M', on='DateTime').mean()
+    kalman_arima['DateTime'] = pd.to_datetime(kalman_arima['DateTime'])
+    kalman_arima_monthly = kalman_arima.resample('M', on='DateTime').mean()
+    """
+
+    ax = original.plot(x='DateTime', y='ActualGenerationOutput', c='orange', label='Actual values in the gaps')
+    fedot_fwrd.plot(ax=ax, x='DateTime', y='ActualGenerationOutput', c='grey', alpha=0.5, label='Forward')
+
+    plt.gcf().autofmt_xdate()
     plt.show()
 
 

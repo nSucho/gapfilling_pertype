@@ -15,7 +15,6 @@ pd.options.mode.chained_assignment = None  # default='warn'
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
-# TODO: overall main?
 def check_for_gaps(file_df_original, areatypecode, country, technology, month, year):
     """
 
