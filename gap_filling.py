@@ -89,8 +89,8 @@ def gapfill_main():
     print('Kalman structTS, arima: ', kalman_struct_dict, kalman_arima_dict)
 
     # plot
-    #gap_filling_aux.plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct,
-    #                             kalman_arima)
+    gap_filling_aux.plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct,
+                                 kalman_arima, avg_week, lin_avg_week)
 
     # stop time to check how long program was running
     end_time = time.time()

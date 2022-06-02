@@ -11,4 +11,4 @@ Needs Python 3.8 for FEDOT
 2. gap_filling.py
    -> reads in the yearly-file with the specified values and creates gaps in that file
    -> fills gaps with the different methods
-   ->
+   -> plots everything

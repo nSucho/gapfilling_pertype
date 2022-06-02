@@ -71,7 +71,7 @@ def validation(original, filled_gaps):
     return vali_dict
 
 
-def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima):
+def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, avg_week, lin_avg_week):
     """
 
     :param original:
@@ -84,13 +84,17 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima):
     :type kalman_struct:
     :param kalman_arima:
     :type kalman_arima:
+    :param avg_week:
+    :type avg_week:
+    :param lin_avg_week:
+    :type lin_avg_week:
     :return:
     :rtype:
     """
     # TODO: first sample to month then plot all into same plot with different colours
-    #   still to close to plot properly
+    #   still to close to plot properly, not the effect i hope for
+    #   sum or mean? sum probably bigger difference
 
-    """
     # reshape the data to monthly for overview-able plots
     original['DateTime'] = pd.to_datetime(original['DateTime'])
     original_monthly = original.resample('M', on='DateTime').mean()
@@ -102,12 +106,25 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima):
     kalman_struct_monthly = kalman_struct.resample('M', on='DateTime').mean()
     kalman_arima['DateTime'] = pd.to_datetime(kalman_arima['DateTime'])
     kalman_arima_monthly = kalman_arima.resample('M', on='DateTime').mean()
-    """
+    avg_week['DateTime'] = pd.to_datetime(avg_week['DateTime'])
+    avg_week_monthly = avg_week.resample('M', on='DateTime').mean()
+    lin_avg_week['DateTime'] = pd.to_datetime(lin_avg_week['DateTime'])
+    lin_avg_week_monthly = lin_avg_week.resample('M', on='DateTime').mean()
 
-    ax = original.plot(x='DateTime', y='ActualGenerationOutput', c='orange', label='Actual values in the gaps')
-    fedot_fwrd.plot(ax=ax, x='DateTime', y='ActualGenerationOutput', c='grey', alpha=0.5, label='Forward')
+    # plot
+    plt.figure(figsize=(24, 10))
+    plt.xlabel('Comparison of XX and the original')
 
-    plt.gcf().autofmt_xdate()
+    ax1 = original_monthly['ActualGenerationOutput'].plot(color='blue', grid=True, label='Original', linewidth=4)
+    ax2 = fedot_bi_monthly['ActualGenerationOutput'].plot(color='red', grid=True, alpha=1,
+                                                            secondary_y=True, label='FEDOT Fwrd')
+
+    h1, l1 = ax1.get_legend_handles_labels()
+    h2, l2 = ax2.get_legend_handles_labels()
+
+    plt.legend(h1 + h2, l1 + l2, loc=2)
+    plt.show()
+
     plt.show()
 
 
