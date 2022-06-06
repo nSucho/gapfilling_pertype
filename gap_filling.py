@@ -8,6 +8,7 @@ import filling_fedot
 import filling_kalman
 import filling_avg
 import gap_filling_aux
+import gap_filling_plotting
 import numpy as np
 import time
 import readin_aux # only for the time calculation
@@ -40,8 +41,8 @@ def gapfill_main():
     avg_week_series = np.array(avg_week['ActualGenerationOutput'])
     lin_avg_week_series = np.array(lin_avg_week['ActualGenerationOutput'])
     # validate the gap_filling
-    avg_week_dict = gap_filling_aux.validation(original_series, avg_week_series)
-    lin_avg_week_dict = gap_filling_aux.validation(original_series, lin_avg_week_series)
+    avg_week_vali = gap_filling_aux.validation(original_series, avg_week_series)
+    lin_avg_week_vali = gap_filling_aux.validation(original_series, lin_avg_week_series)
 
     # filling the gaps with the first fedot-methods and calculate the validation values
     #fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech)
@@ -52,8 +53,8 @@ def gapfill_main():
     fedot_fwrd_series = np.array(fedot_fwrd['ActualGenerationOutput'])
     fedot_bi_series = np.array(fedot_bi['ActualGenerationOutput'])
     # validate the gap_filling
-    fedot_fwrd_dict = gap_filling_aux.validation(original_series, fedot_fwrd_series)
-    fedot_bi_dict = gap_filling_aux.validation(original_series, fedot_bi_series)
+    fedot_fwrd_vali = gap_filling_aux.validation(original_series, fedot_fwrd_series)
+    fedot_bi_vali = gap_filling_aux.validation(original_series, fedot_bi_series)
 
     # TODO: should stay in?
     """
@@ -79,18 +80,20 @@ def gapfill_main():
     kalman_struct_series = np.array(kalman_struct['ActualGenerationOutput'])
     kalman_arima_series = np.array(kalman_arima['ActualGenerationOutput'])
     # validate the gap_filling
-    kalman_struct_dict = gap_filling_aux.validation(original_series, kalman_struct_series)
-    kalman_arima_dict = gap_filling_aux.validation(original_series, kalman_arima_series)
+    kalman_struct_vali = gap_filling_aux.validation(original_series, kalman_struct_series)
+    kalman_arima_vali = gap_filling_aux.validation(original_series, kalman_arima_series)
 
     # TODO: keep second fedot in?
-    print('Average week, linear average week: ', avg_week_dict, lin_avg_week_dict)
-    print('FEDOT forward, bidirect: ', fedot_fwrd_dict, fedot_bi_dict)
+    print('Average week, linear average week: ', avg_week_vali, lin_avg_week_vali)
+    print('FEDOT forward, bidirect: ', fedot_fwrd_vali, fedot_bi_vali)
     #print('FEDOT ridge, composite: ', fedot_ridge_dict, fedot_comp_dict)
-    print('Kalman structTS, arima: ', kalman_struct_dict, kalman_arima_dict)
+    print('Kalman structTS, arima: ', kalman_struct_vali, kalman_arima_vali)
 
     # plot
-    gap_filling_aux.plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct,
-                                 kalman_arima, avg_week, lin_avg_week)
+    #gap_filling_plotting.plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct,
+    #                                  kalman_arima, avg_week, lin_avg_week)
+    gap_filling_plotting.plot_validation(avg_week_vali, lin_avg_week_vali, fedot_fwrd_vali, fedot_bi_vali,
+                                         kalman_struct_vali, kalman_arima_vali)
 
     # stop time to check how long program was running
     end_time = time.time()
