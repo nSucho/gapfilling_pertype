@@ -90,8 +90,8 @@ def gapfill_main():
     print('Kalman structTS, arima: ', kalman_struct_vali, kalman_arima_vali)
 
     # plot
-    #gap_filling_plotting.plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct,
-    #                                  kalman_arima, avg_week, lin_avg_week)
+    gap_filling_plotting.plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct,
+                                      kalman_arima, avg_week, lin_avg_week)
     gap_filling_plotting.plot_validation(avg_week_vali, lin_avg_week_vali, fedot_fwrd_vali, fedot_bi_vali,
                                          kalman_struct_vali, kalman_arima_vali)
 

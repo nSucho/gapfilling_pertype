@@ -8,3 +8,4 @@ runtime.txt
 country_list.csv
 areatypecode_list.csv
 technology_list.csv
+plots/
