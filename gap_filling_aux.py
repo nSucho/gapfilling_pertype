@@ -6,7 +6,8 @@ Created on April 2022
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import numpy as np
 import pandas as pd
-np.random.seed(10)
+# seed 10 is working
+np.random.seed(123)
 
 
 def read_in(year, atc, country, tech, create_gaps):
@@ -31,13 +32,13 @@ def read_in(year, atc, country, tech, create_gaps):
     # set 'DateTime' as datetime-type
     original['DateTime'] = pd.to_datetime(original['DateTime'])
     if create_gaps:
-        data_w_nan = insert_the_gaps(original)
+        data_w_nan = insert_gaps(original)
     return original, data_w_nan
 
 
-def insert_the_gaps(original):
+def insert_gaps(original):
     """
-
+    inserts gaps into the dataframe on a random basis
     :param original:
     :type original:
     :return:
@@ -70,7 +71,7 @@ def validation(original, filled_gaps):
     return validation
 
 
-# TODO: kick out later
+# TODO: kick out later?
 def readin_test(year, country, atc, tech, name, method1, method2):
     # read in the file
     file_one = pd.read_csv(

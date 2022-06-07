@@ -12,8 +12,10 @@ import gap_filling_plotting
 import numpy as np
 import time
 import readin_aux # only for the time calculation
+import os
 
 
+# TODO: add all validations into one list/dict?
 def gapfill_main():
     """
 
@@ -45,10 +47,10 @@ def gapfill_main():
     lin_avg_week_vali = gap_filling_aux.validation(original_series, lin_avg_week_series)
 
     # filling the gaps with the first fedot-methods and calculate the validation values
-    #fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech)
+    fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech)
     # TODO: kick out again
     # for testing read in files instead of fill
-    fedot_fwrd, fedot_bi = gap_filling_aux.readin_test(year, country, atc, tech, 'fedot', 'forward', 'bidirect')
+    #fedot_fwrd, fedot_bi = gap_filling_aux.readin_test(year, country, atc, tech, 'fedot', 'forward', 'bidirect')
     # create an array to calculate the validation
     fedot_fwrd_series = np.array(fedot_fwrd['ActualGenerationOutput'])
     fedot_bi_series = np.array(fedot_bi['ActualGenerationOutput'])
@@ -72,10 +74,10 @@ def gapfill_main():
     """
 
     # filling the gaps with Kalman-filter and calculate the validation values
-    #kalman_struct, kalman_arima = filling_kalman.kalman_method(data_w_nan, country, year, atc, tech)
+    kalman_struct, kalman_arima = filling_kalman.kalman_method(data_w_nan, country, year, atc, tech)
     # TODO: kick out again
     # for testing read in files instead of fill
-    kalman_struct, kalman_arima = gap_filling_aux.readin_test(year, country, atc, tech, 'kalman', 'structts', 'arima')
+    #kalman_struct, kalman_arima = gap_filling_aux.readin_test(year, country, atc, tech, 'kalman', 'structts', 'arima')
     # create an array to calculate the validation
     kalman_struct_series = np.array(kalman_struct['ActualGenerationOutput'])
     kalman_arima_series = np.array(kalman_arima['ActualGenerationOutput'])
@@ -83,17 +85,22 @@ def gapfill_main():
     kalman_struct_vali = gap_filling_aux.validation(original_series, kalman_struct_series)
     kalman_arima_vali = gap_filling_aux.validation(original_series, kalman_arima_series)
 
-    # TODO: keep second fedot in?
-    print('Average week, linear average week: ', avg_week_vali, lin_avg_week_vali)
-    print('FEDOT forward, bidirect: ', fedot_fwrd_vali, fedot_bi_vali)
-    #print('FEDOT ridge, composite: ', fedot_ridge_dict, fedot_comp_dict)
-    print('Kalman structTS, arima: ', kalman_struct_vali, kalman_arima_vali)
-
     # plot
-    gap_filling_plotting.plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct,
-                                      kalman_arima, avg_week, lin_avg_week)
+    # first check if folder exists to save data in
+    isExist = os.path.exists('plots/')
+    if not isExist:
+        os.makedirs('plots/')
+
     gap_filling_plotting.plot_validation(avg_week_vali, lin_avg_week_vali, fedot_fwrd_vali, fedot_bi_vali,
                                          kalman_struct_vali, kalman_arima_vali)
+    gap_filling_plotting.plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct,
+                                      kalman_arima, avg_week, lin_avg_week)
+
+    # TODO: keep second fedot in (seems to be actually worse)?
+    print('Average week, linear average week: ', avg_week_vali, lin_avg_week_vali)
+    print('FEDOT forward, bidirect: ', fedot_fwrd_vali, fedot_bi_vali)
+    # print('FEDOT ridge, composite: ', fedot_ridge_dict, fedot_comp_dict)
+    print('Kalman structTS, arima: ', kalman_struct_vali, kalman_arima_vali)
 
     # stop time to check how long program was running
     end_time = time.time()

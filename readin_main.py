@@ -32,7 +32,7 @@ def readin_data():
         # write the header into the csv
         writer_obj.writerow(['Year', 'Country', 'Technology', 'AreaTypeCode', 'MissingPercentage'])
 
-    # read in all the monthly csv-files of this country
+    # get all the monthly csv-files
     files = glob.glob('original_data/' + year + '/' + year + '_??_AggregatedGenerationPerType_16.1.B_C.csv',
                       recursive=False)
     files.sort()
@@ -41,24 +41,23 @@ def readin_data():
         df_path = pathlib.PurePath(file).parts[2]
         month = df_path[5:7]
 
-        # TODO: comment what is done here
+        # read in the file
         file_df = pd.read_csv(file, sep='\t', encoding='utf-8')
-        file_df["DateTime"] = pd.to_datetime(file_df["DateTime"])
+        # change the type of the 'DateTime' column to datetime, then sort the dataframe from first to last of the month
+        file_df['DateTime'] = pd.to_datetime(file_df["DateTime"])
         file_df.sort_values(by='DateTime', inplace=True)
         file_df = file_df.reset_index(drop=True)
-        # drop unnecesary coloms
+        # drop unnecessary columns
         file_df = file_df.loc[:, ['DateTime', 'AreaTypeCode', 'MapCode', 'ProductionType', 'ActualGenerationOutput']]
 
         # create list for all countries and save the list
         countries = readin_aux.list_countries(file_df)
-
         # create list for all AreaTypeCodes and save the list
         atcodes = readin_aux.list_areatypecode(file_df)
-
         # create list for all technologies and save the list
         technologies = readin_aux.list_technologies(file_df)
 
-        # find all gaps for each technologie per country
+        # find all gaps for each technology per country
         for atcode in atcodes:
             for technology in technologies:
                 for country in countries:

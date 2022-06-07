@@ -6,7 +6,7 @@ Created on June 2022
 import matplotlib.pyplot as plt
 import numpy as np
 
-# TODO: check if folder plots exists
+
 def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, avg_week, lin_avg_week):
     """
     creates wonderful plots to visualize the results
@@ -30,17 +30,17 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
 
     # get the difference and standardize it
     difference_avg_week = substract(original['ActualGenerationOutput'], avg_week['ActualGenerationOutput'])
-    stand_avg_week = standard(difference_avg_week)
+    stand_avg_week = standardizing(difference_avg_week)
     difference_lin_avg_week = substract(original['ActualGenerationOutput'], lin_avg_week['ActualGenerationOutput'])
-    stand_lin_avg_week = standard(difference_lin_avg_week)
+    stand_lin_avg_week = standardizing(difference_lin_avg_week)
     difference_fedot_fwrd = substract(original['ActualGenerationOutput'], fedot_fwrd['ActualGenerationOutput'])
-    stand_fedot_fwrd = standard(difference_fedot_fwrd)
+    stand_fedot_fwrd = standardizing(difference_fedot_fwrd)
     difference_fedot_bi = substract(original['ActualGenerationOutput'], fedot_bi['ActualGenerationOutput'])
-    stand_fedot_bi = standard(difference_fedot_bi)
+    stand_fedot_bi = standardizing(difference_fedot_bi)
     difference_kalman_struct = substract(original['ActualGenerationOutput'], kalman_struct['ActualGenerationOutput'])
-    stand_kalman_struct = standard(difference_kalman_struct)
+    stand_kalman_struct = standardizing(difference_kalman_struct)
     difference_kalman_arima = substract(original['ActualGenerationOutput'], kalman_arima['ActualGenerationOutput'])
-    stand_kalman_arima = standard(difference_kalman_arima)
+    stand_kalman_arima = standardizing(difference_kalman_arima)
 
     # plot the difference
     plt.plot(difference_avg_week, color='#377eb8', label='Actual values in the gaps')
@@ -57,7 +57,8 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
     #plt.show()
     plt.close()
 
-    # plot the stand
+    # plot the standardizing
+    # TODO: why is this good?
     plt.plot(stand_avg_week, color='#377eb8', label='Actual values in the gaps')
     plt.plot(stand_lin_avg_week, color='#ff7f00', label='Local polynomial')
     plt.plot(stand_fedot_fwrd, color='#999999', label='Actual values in the gaps')
@@ -173,8 +174,7 @@ def substract(original_series, second_series):
     return diff
 
 
-# TODO: wie wichtig standartisierung
-def standard(array1):
+def standardizing(array1):
     """
 
     :param array1:

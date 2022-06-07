@@ -15,6 +15,7 @@ from fedot.core.pipelines.node import PrimaryNode, SecondaryNode
 from fedot.utilities.ts_gapfilling import ModelGapFiller
 
 
+# TODO: is there a better way?
 def fedot_frwd_bi(data_w_nan, country, year, atc, tech):
     """
 
