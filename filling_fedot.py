@@ -50,7 +50,9 @@ def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, heade
     model_gapfiller = ModelGapFiller(gap_value=-100.0,
                                      pipeline=pipeline)
 
+    # ----------
     # Filling in the gaps
+    # ----------
     # TODO: filled with minus
     without_gap_forward = model_gapfiller.forward_filling(time_series)
     without_gap_bidirect = model_gapfiller.forward_inverse_filling(time_series)

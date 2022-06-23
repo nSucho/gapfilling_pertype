@@ -41,12 +41,14 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
     """
     file_df = file_df_original.copy()
 
+    # ----------
     # check if necessary folders exist, else create
+    # ----------
     readin_aux.create_path('data/' + datatype + '/' + str(year) + '/' + country + '/rawdata_sorted')
     readin_aux.create_path('data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted')
     readin_aux.create_path('data/' + datatype + '/' + str(year) + '/' + country + '/gaplists')
 
-    # some (country, ATC, Technology)-combinations do not exist, so catch the error for them
+    # some (country, ATC, Technology)-combinations do not exist, so catch the error for this countries
     try:
         # only take rows into 'act_data_df' which are equal to our wanted attributes
         if datatype == 'agpt':
@@ -58,7 +60,9 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
         elif datatype == 'crossborder_flow':
             pass
 
+        # ----------
         # if the 'DateTime' is not in hourly steps, we down sample to hours
+        # ----------
         # first we have to set the 'DateTime' as index
         act_data_df = act_data_df.set_index(['DateTime'])
         # now resample
@@ -68,8 +72,11 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
         # now set 'DateTime' back as column
         act_data_df.reset_index(inplace=True)
 
-        """check if start and end of month is in data"""
-        # find out if first day is in list- first fill days, then hours
+        # ----------
+        # check if start and end of month is in data
+        # ----------
+        # find out if first day is in list
+        # first fill days, then hours
         firsttimestamp = (act_data_df['DateTime']).iloc[0]
         # check if 'firsttimestamp' is not first of the month
         if firsttimestamp.day != 1 or firsttimestamp.hour != 0:
@@ -114,7 +121,9 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
                            '_' + areatypecode + '_' + technology + '.csv', sep='\t', encoding='utf-8', index=False,
                            header=header)
 
-        """iterate to find the gaps"""
+        # ----------
+        # iterate to find the gaps
+        # ----------
         # compare the date then time
         # init old datetime as first datetime of dataframe and create gap-list
         old_date = firsttimestamp
@@ -128,7 +137,9 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
             # set the current datetime as old
             old_date = datetime
 
-        """create a csv with all gaps included"""
+        # ----------
+        # create a csv with all gaps included
+        # ----------
         # convert list with the gaps to a dataframe
         gap_df = pd.DataFrame(gap_list)
         # check if the gap-df is empty

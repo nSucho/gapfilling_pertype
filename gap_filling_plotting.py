@@ -54,7 +54,9 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
     difference_kalman_arima = substract(original[val_col], kalman_arima[val_col])
     stand_kalman_arima = standardizing(difference_kalman_arima)
 
+    # ----------
     # plot the difference
+    # ----------
     plt.plot(difference_avg_week, color='#377eb8', label='Actual values in the gaps')
     plt.plot(difference_lin_avg_week, color='#ff7f00', label='Local polynomial')
     plt.plot(difference_fedot_fwrd, color='#999999', label='Actual values in the gaps')
@@ -69,7 +71,9 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
     #plt.show()
     plt.close()
 
+    # ----------
     # plot the standardizing
+    # ----------
     # TODO: why is this good?
     plt.plot(stand_avg_week, color='#377eb8', label='Actual values in the gaps')
     plt.plot(stand_lin_avg_week, color='#ff7f00', label='Local polynomial')
@@ -114,7 +118,9 @@ def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct,
     :return:
     :rtype:
     """
-    # mae
+    # ----------
+    # MAE
+    # ----------
     x = np.arange(1)
     # width of the  bars
     width = 0.2
@@ -136,7 +142,9 @@ def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct,
     #plt.show()
     plt.close()
 
-    # rmse
+    # ----------
+    # RMSE
+    # ----------
     x = np.arange(1)
     # width of the  bars
     width = 0.2
@@ -158,9 +166,11 @@ def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct,
     #plt.show()
     plt.close()
 
-    # r^2
+    # ----------
+    # R^2
+    # ----------
     x = np.arange(1)
-    # width of the  bars
+    # width of the bars
     width = 0.2
     # plot
     plt.bar(x - 0.6, avg_week[2], width, color='#377eb8', hatch='/')

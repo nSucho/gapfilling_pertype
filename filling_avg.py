@@ -30,7 +30,9 @@ def avg_week_method(data_w_nan, country, year, atc, tech, datatype, val_col, hea
     # we add the week of the month to the rows
     df_w_nan_copy['Week'] = pd.factorize(df_w_nan_copy['DateTime'].dt.isocalendar().week)[0] + 1
 
-    # now we fill all NaN's with the mean of this week;
+    # ----------
+    # now we fill all NaN's with the mean of this week
+    # ----------
     avg_week = df_w_nan_copy[val_col].fillna(df_w_nan_copy.groupby('Week')[val_col].transform('mean'))
 
     # as second method we first fill up to 3h linear and everything longer with avg week
@@ -53,7 +55,9 @@ def avg_week_method(data_w_nan, country, year, atc, tech, datatype, val_col, hea
             df_w_nan_copy.loc[index+n, val_col] = df_interpolated.loc[index+n]
             l += 1
             n += 1
+    # ----------
     # fill rest of the nan's with the "average-week"-method
+    # ----------
     lin_avg_week = df_w_nan_copy[val_col].fillna(df_w_nan_copy.groupby('Week')[val_col].transform('mean'))
 
     # combine the values with the corresponding time

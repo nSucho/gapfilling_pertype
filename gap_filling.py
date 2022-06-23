@@ -26,8 +26,10 @@ def gapfill_main():
     # start time to check how long program was running
     start_time = time.time()
 
-    # setting the values
-    # TODO: crossborder_flow missing, totalload missing
+    # ----------
+    # set the values
+    # ----------
+    # TODO: crossborder_flow missing
     # options for datatype => 'agpt' (ActGenPerType), 'totalload'(ActTotLoad), 'crossborder_flow
     datatype = 'totalload'
     year = '2018'
@@ -54,8 +56,9 @@ def gapfill_main():
     original, data_w_nan = gap_filling_aux.read_in(datatype, year, atc, country, tech, create_gaps, val_col)
     original_series = np.array(original[val_col])
 
-
+    # ----------
     # filling the gaps with the average of the week and calculate the validation values
+    # ----------
     avg_week, lin_avg_week = filling_avg.avg_week_method(data_w_nan, country, year, atc, tech, datatype, val_col,
                                                          header)
     # create an array to calculate the validation
@@ -65,7 +68,9 @@ def gapfill_main():
     avg_week_vali = gap_filling_aux.validation(original_series, avg_week_series)
     lin_avg_week_vali = gap_filling_aux.validation(original_series, lin_avg_week_series)
 
+    # ----------
     # filling the gaps with the first fedot-methods and calculate the validation values
+    # ----------
     #fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header)
     # TODO: kick out again
     # for testing read in files instead of fill
@@ -78,7 +83,9 @@ def gapfill_main():
     fedot_fwrd_vali = gap_filling_aux.validation(original_series, fedot_fwrd_series)
     fedot_bi_vali = gap_filling_aux.validation(original_series, fedot_bi_series)
 
+    # ----------
     # filling the gaps with Kalman-filter and calculate the validation values
+    # ----------
     #kalman_struct, kalman_arima = filling_kalman.kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col,
     #                                                           header)
     # TODO: kick out again
@@ -92,7 +99,9 @@ def gapfill_main():
     kalman_struct_vali = gap_filling_aux.validation(original_series, kalman_struct_series)
     kalman_arima_vali = gap_filling_aux.validation(original_series, kalman_arima_series)
 
+    # ----------
     # plot
+    # ----------
     # first check if folder exists to save data in
     isExist = os.path.exists('plots/' + datatype + '/' + year)
     if not isExist:
@@ -102,6 +111,7 @@ def gapfill_main():
                                          kalman_struct_vali, kalman_arima_vali, datatype, year, country, tech)
     gap_filling_plotting.plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct,
                                       kalman_arima, avg_week, lin_avg_week, val_col, datatype, year, country, tech)
+
     # print the values for testing
     print('Average week, linear average week: ', avg_week_vali, lin_avg_week_vali)
     print('FEDOT forward, bidirect: ', fedot_fwrd_vali, fedot_bi_vali)

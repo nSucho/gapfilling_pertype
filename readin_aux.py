@@ -47,7 +47,10 @@ def process_files(files, datatype, val_col, header, year):
         # create list for all AreaTypeCodes and save the list
         atcodes = list_areatypecode(file_df)
 
+        # ----------
         # find all gaps for each technology per country
+        # ----------
+        # ActGenPerType
         if datatype == 'agpt':
             # create list for all technologies and save the list
             technologies = list_technologies(file_df)
@@ -62,8 +65,7 @@ def process_files(files, datatype, val_col, header, year):
                 for technology in technologies:
                     for country in countries:
                         readin_to_year.unify_year(year, country, atcode, technology, datatype, val_col, header)
-
-        # find all gaps for each country
+        # ActTotLoad
         elif datatype == 'totalload':
             # find all gaps for each technology per country
             for atcode in atcodes:
@@ -75,7 +77,7 @@ def process_files(files, datatype, val_col, header, year):
             for atcode in atcodes:
                 for country in countries:
                     readin_to_year.unify_year(year, country, atcode, 'none', datatype, val_col, header)
-
+        # CrossborderFlow
         # TODO: erstellen
         elif datatype == 'crossborder_flow':
             pass
@@ -155,9 +157,6 @@ def create_path(path):
     isExist = os.path.exists(path)
     if not isExist:
         os.makedirs(path)
-
-
-# print("Created the new directory " +path)
 
 
 def time_convert(sec):

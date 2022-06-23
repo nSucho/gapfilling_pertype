@@ -6,7 +6,7 @@ Created on April 2022
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import numpy as np
 import pandas as pd
-# seed 10 is working with agpt
+# seed 10 is working with agpt and totalload
 np.random.seed(10)
 
 
@@ -45,6 +45,8 @@ def insert_gaps(original, val_col):
     inserts gaps into the dataframe on a random basis
     :param original:
     :type original:
+    :param val_col:
+    :type val_col:
     :return:
     :rtype:
     """
