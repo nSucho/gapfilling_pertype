@@ -16,6 +16,7 @@ import os
 
 
 # TODO: add all validations into one list/dict?
+# add filling for TOTALLOAD
 def gapfill_main():
     """
 
@@ -26,80 +27,84 @@ def gapfill_main():
     start_time = time.time()
 
     # setting the values
-    year = '2021'
+    # TODO: crossborder_flow missing, totalload missing
+    # options for datatype => 'agpt' (ActGenPerType), 'totalload'(ActTotLoad), 'crossborder_flow
+    datatype = 'totalload'
+    year = '2018'
     atc = 'CTY'
     country = 'DE'
     tech = 'Biomass'
+    # if 'create_gaps = True' there will be random gaps inserted into the data
     create_gaps = True
+    if datatype == 'agpt':
+        val_col = 'ActualGenerationOutput'
+        header = ['DateTime', 'ActualGenerationOutput']
+    elif datatype == 'totalload':
+        # change tech to 'none' because the tables don't have that
+        tech = 'none'
+        val_col = 'TotalLoadValue'
+        header = ['DateTime', 'TotalLoadValue']
+    elif datatype == 'crossborder_flow':
+        # change tech to 'none' because the tables don't have that
+        tech = 'none'
+        val_col = ''
+        header = []
 
     # read in the file (and create gaps)
-    original, data_w_nan = gap_filling_aux.read_in(year, atc, country, tech, create_gaps)
-    original_series = np.array(original['ActualGenerationOutput'])
+    original, data_w_nan = gap_filling_aux.read_in(datatype, year, atc, country, tech, create_gaps, val_col)
+    original_series = np.array(original[val_col])
 
 
     # filling the gaps with the average of the week and calculate the validation values
-    avg_week, lin_avg_week = filling_avg.avg_week_method(data_w_nan, country, year, atc, tech)
+    avg_week, lin_avg_week = filling_avg.avg_week_method(data_w_nan, country, year, atc, tech, datatype, val_col,
+                                                         header)
     # create an array to calculate the validation
-    avg_week_series = np.array(avg_week['ActualGenerationOutput'])
-    lin_avg_week_series = np.array(lin_avg_week['ActualGenerationOutput'])
+    avg_week_series = np.array(avg_week[val_col])
+    lin_avg_week_series = np.array(lin_avg_week[val_col])
     # validate the gap_filling
     avg_week_vali = gap_filling_aux.validation(original_series, avg_week_series)
     lin_avg_week_vali = gap_filling_aux.validation(original_series, lin_avg_week_series)
 
     # filling the gaps with the first fedot-methods and calculate the validation values
-    fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech)
+    #fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header)
     # TODO: kick out again
     # for testing read in files instead of fill
-    #fedot_fwrd, fedot_bi = gap_filling_aux.readin_test(year, country, atc, tech, 'fedot', 'forward', 'bidirect')
+    fedot_fwrd, fedot_bi = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'fedot', 'forward',
+                                                       'bidirect')
     # create an array to calculate the validation
-    fedot_fwrd_series = np.array(fedot_fwrd['ActualGenerationOutput'])
-    fedot_bi_series = np.array(fedot_bi['ActualGenerationOutput'])
+    fedot_fwrd_series = np.array(fedot_fwrd[val_col])
+    fedot_bi_series = np.array(fedot_bi[val_col])
     # validate the gap_filling
     fedot_fwrd_vali = gap_filling_aux.validation(original_series, fedot_fwrd_series)
     fedot_bi_vali = gap_filling_aux.validation(original_series, fedot_bi_series)
 
-    # TODO: should stay in?
-    """
-    # filling the gaps with the second fedot-methods and calculate the validation values
-    #fedot_ridge, fedot_comp = filling_fedot.fedot_ridge_composite(data_w_nan, country, year, atc, tech)
-    # TODO: kick out again
-    # for testing read in files instead of fill
-    fedot_ridge, fedot_comp = gap_filling_aux.readin_test(year, country, atc, tech, 'fedot', 'ridge', 'composite')
-    # create an array to calculate the validation
-    fedot_ridge_series = np.array(fedot_ridge['ActualGenerationOutput'])
-    fedot_comp_series = np.array(fedot_comp['ActualGenerationOutput'])
-    # validate the gap_filling
-    fedot_ridge_dict = gap_filling_aux.validation(original_series, fedot_ridge_series)
-    fedot_comp_dict = gap_filling_aux.validation(original_series, fedot_comp_series)
-    """
-
     # filling the gaps with Kalman-filter and calculate the validation values
-    kalman_struct, kalman_arima = filling_kalman.kalman_method(data_w_nan, country, year, atc, tech)
+    #kalman_struct, kalman_arima = filling_kalman.kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col,
+    #                                                           header)
     # TODO: kick out again
     # for testing read in files instead of fill
-    #kalman_struct, kalman_arima = gap_filling_aux.readin_test(year, country, atc, tech, 'kalman', 'structts', 'arima')
+    kalman_struct, kalman_arima = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'kalman', 'structts',
+                                                              'arima')
     # create an array to calculate the validation
-    kalman_struct_series = np.array(kalman_struct['ActualGenerationOutput'])
-    kalman_arima_series = np.array(kalman_arima['ActualGenerationOutput'])
+    kalman_struct_series = np.array(kalman_struct[val_col])
+    kalman_arima_series = np.array(kalman_arima[val_col])
     # validate the gap_filling
     kalman_struct_vali = gap_filling_aux.validation(original_series, kalman_struct_series)
     kalman_arima_vali = gap_filling_aux.validation(original_series, kalman_arima_series)
 
     # plot
     # first check if folder exists to save data in
-    isExist = os.path.exists('plots/')
+    isExist = os.path.exists('plots/' + datatype + '/' + year)
     if not isExist:
-        os.makedirs('plots/')
-
+        os.makedirs('plots/' + datatype + '/' + year)
+    # now plot
     gap_filling_plotting.plot_validation(avg_week_vali, lin_avg_week_vali, fedot_fwrd_vali, fedot_bi_vali,
-                                         kalman_struct_vali, kalman_arima_vali)
+                                         kalman_struct_vali, kalman_arima_vali, datatype, year, country, tech)
     gap_filling_plotting.plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct,
-                                      kalman_arima, avg_week, lin_avg_week)
-
-    # TODO: keep second fedot in (seems to be actually worse)?
+                                      kalman_arima, avg_week, lin_avg_week, val_col, datatype, year, country, tech)
+    # print the values for testing
     print('Average week, linear average week: ', avg_week_vali, lin_avg_week_vali)
     print('FEDOT forward, bidirect: ', fedot_fwrd_vali, fedot_bi_vali)
-    # print('FEDOT ridge, composite: ', fedot_ridge_dict, fedot_comp_dict)
     print('Kalman structTS, arima: ', kalman_struct_vali, kalman_arima_vali)
 
     # stop time to check how long program was running

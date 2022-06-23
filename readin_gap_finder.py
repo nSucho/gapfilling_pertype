@@ -168,8 +168,8 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
                                '_' + areatypecode + '_' + technology + '_nogaps.csv', sep='\t', encoding='utf-8',
                                index=False, header=header)
     except Exception as e:
-        print("Error is found: "+str(e)+"||"+country+"--"+str(month)+"--"+areatypecode+"--"+technology)
-        #pass
+        #print("Error is found: "+str(e)+"||"+country+"--"+str(month)+"--"+areatypecode+"--"+technology)
+        pass
 
 
 def gap_list_creator(old_date, new_date, gap_list, areatypecode, country, technology):

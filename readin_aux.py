@@ -8,7 +8,7 @@ couple of auxiliary functions for read_in.py
 import os
 import pandas as pd
 import pathlib
-import gap_finder
+import readin_gap_finder
 import readin_to_year
 
 
@@ -54,8 +54,8 @@ def process_files(files, datatype, val_col, header, year):
             for atcode in atcodes:
                 for technology in technologies:
                     for country in countries:
-                        gap_finder.check_for_gaps(file_df, atcode, country, technology, month, year, val_col, header,
-                                                  datatype)
+                        readin_gap_finder.check_for_gaps(file_df, atcode, country, technology, month, year, val_col,
+                                                         header, datatype)
             # TODO: need of double loop?
             # unify for every combination the year to fill the gaps afterwards
             for atcode in atcodes:
@@ -68,7 +68,8 @@ def process_files(files, datatype, val_col, header, year):
             # find all gaps for each technology per country
             for atcode in atcodes:
                 for country in countries:
-                    gap_finder.check_for_gaps(file_df, atcode, country, 'none', month, year, val_col, header, datatype)
+                    readin_gap_finder.check_for_gaps(file_df, atcode, country, 'none', month, year, val_col, header,
+                                                     datatype)
             # TODO: need of double loop?
             # unify for every combination the year to fill the gaps afterwards
             for atcode in atcodes:

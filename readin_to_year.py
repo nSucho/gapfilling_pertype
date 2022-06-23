@@ -49,8 +49,8 @@ def unify_year(year, country, areatypecode, technology, datatype, val_col, heade
         analyze_gap_length(df_year, year, country, areatypecode, technology, datatype, val_col)
 
     except Exception as e:
-        print("Error is found: "+str(e)+"||"+country+"--"+areatypecode+"--"+technology)
-        #pass
+        #print("Error is found: "+str(e)+"||"+country+"--"+areatypecode+"--"+technology)
+        pass
 
 
 def analyze_gap_length(check_df, year, country, areatypecode, technology, datatype, val_col):

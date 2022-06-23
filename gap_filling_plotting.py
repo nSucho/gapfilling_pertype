@@ -7,9 +7,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, avg_week, lin_avg_week):
+# TODO: refactor time index to act. time
+def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, avg_week, lin_avg_week, val_col, datatype,
+                 year, country, tech):
     """
-    creates wonderful plots to visualize the results
+
     :param original:
     :type original:
     :param fedot_fwrd:
@@ -24,22 +26,32 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
     :type avg_week:
     :param lin_avg_week:
     :type lin_avg_week:
+    :param val_col:
+    :type val_col:
+    :param datatype:
+    :type datatype:
+    :param year:
+    :type year:
+    :param country:
+    :type country:
+    :param tech:
+    :type tech:
     :return:
     :rtype:
     """
 
     # get the difference and standardize it
-    difference_avg_week = substract(original['ActualGenerationOutput'], avg_week['ActualGenerationOutput'])
+    difference_avg_week = substract(original[val_col], avg_week[val_col])
     stand_avg_week = standardizing(difference_avg_week)
-    difference_lin_avg_week = substract(original['ActualGenerationOutput'], lin_avg_week['ActualGenerationOutput'])
+    difference_lin_avg_week = substract(original[val_col], lin_avg_week[val_col])
     stand_lin_avg_week = standardizing(difference_lin_avg_week)
-    difference_fedot_fwrd = substract(original['ActualGenerationOutput'], fedot_fwrd['ActualGenerationOutput'])
+    difference_fedot_fwrd = substract(original[val_col], fedot_fwrd[val_col])
     stand_fedot_fwrd = standardizing(difference_fedot_fwrd)
-    difference_fedot_bi = substract(original['ActualGenerationOutput'], fedot_bi['ActualGenerationOutput'])
+    difference_fedot_bi = substract(original[val_col], fedot_bi[val_col])
     stand_fedot_bi = standardizing(difference_fedot_bi)
-    difference_kalman_struct = substract(original['ActualGenerationOutput'], kalman_struct['ActualGenerationOutput'])
+    difference_kalman_struct = substract(original[val_col], kalman_struct[val_col])
     stand_kalman_struct = standardizing(difference_kalman_struct)
-    difference_kalman_arima = substract(original['ActualGenerationOutput'], kalman_arima['ActualGenerationOutput'])
+    difference_kalman_arima = substract(original[val_col], kalman_arima[val_col])
     stand_kalman_arima = standardizing(difference_kalman_arima)
 
     # plot the difference
@@ -53,7 +65,7 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
     plt.ylabel("Values")
     plt.legend(["Average week", "Linear average week", "FEDOT forward", "FEDOT bidirect", "Kalman structTS",
                 "Kalman arima"])
-    plt.savefig('plots/differences.png', bbox_inches='tight')
+    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + 'differences.png', bbox_inches='tight')
     #plt.show()
     plt.close()
 
@@ -69,15 +81,16 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
     plt.ylabel("Values")
     plt.legend(["Average week", "Linear average week", "FEDOT forward", "FEDOT bidirect", "Kalman structTS",
                 "Kalman arima"])
-    plt.savefig('plots/stand.png', bbox_inches='tight')
+    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + 'stand.png', bbox_inches='tight')
     #plt.show()
     plt.close()
 
 
 # TODO: change xticks
-def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima):
+def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, datatype, year, country,
+                    tech):
     """
-    creates bar-plots for the visualization of the validation
+
     :param avg_week:
     :type avg_week:
     :param lin_avg_week:
@@ -90,6 +103,14 @@ def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct,
     :type kalman_struct:
     :param kalman_arima:
     :type kalman_arima:
+    :param datatype:
+    :type datatype:
+    :param year:
+    :type year:
+    :param country:
+    :type country:
+    :param tech:
+    :type tech:
     :return:
     :rtype:
     """
@@ -110,8 +131,8 @@ def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct,
     # each method one bar
     plt.legend(["Average week", "Linear average week", "FEDOT forward", "FEDOT bidirect", "Kalman structTS",
                 "Kalman arima"])
-    plt.title("Mean Average Error")
-    plt.savefig('plots/mae.png', bbox_inches='tight')
+    plt.title('Country: ' + country + ', Technology: ' + tech + ', Year: ' + year)
+    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + 'mae.png', bbox_inches='tight')
     #plt.show()
     plt.close()
 
@@ -132,8 +153,8 @@ def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct,
     # each method one bar
     plt.legend(["Average week", "Linear average week", "FEDOT forward", "FEDOT bidirect", "Kalman structTS",
                 "Kalman arima"])
-    plt.title("Root Mean Squared Error")
-    plt.savefig('plots/rmse.png', bbox_inches='tight')
+    plt.title('Country: ' + country + ', Technology: ' + tech + ', Year: ' + year)
+    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + 'rmse.png', bbox_inches='tight')
     #plt.show()
     plt.close()
 
@@ -154,8 +175,8 @@ def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct,
     # each method one bar
     plt.legend(["Average week", "Linear average week", "FEDOT forward", "FEDOT bidirect", "Kalman structTS",
                 "Kalman arima"])
-    plt.title("R^2")
-    plt.savefig('plots/r2.png', bbox_inches='tight')
+    plt.title('Country: ' + country + ', Technology: ' + tech + ', Year: ' + year)
+    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + 'r2.png', bbox_inches='tight')
     #plt.show()
     plt.close()
 

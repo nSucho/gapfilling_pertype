@@ -14,7 +14,7 @@ kalman_StructTs = robjects.r['na_kalman']
 kalman_auto_arima = robjects.r['na_kalman']
 
 
-def kalman_method(data_w_nan, country, year, atc, tech):
+def kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col, header):
     """
 
     :param data_w_nan:
@@ -27,6 +27,12 @@ def kalman_method(data_w_nan, country, year, atc, tech):
     :type atc:
     :param tech:
     :type tech:
+    :param datatype:
+    :type datatype:
+    :param val_col:
+    :type val_col:
+    :param header:
+    :type header:
     :return:
     :rtype:
     """
@@ -35,33 +41,31 @@ def kalman_method(data_w_nan, country, year, atc, tech):
 
     # TODO: 2x2 possibilities (smooth, not smooth, arima, structts)
     # values need to be a numeric vector
-    w_gaps = np.ndarray.tolist(df_w_nan_copy['ActualGenerationOutput'].values)
+    w_gaps = np.ndarray.tolist(df_w_nan_copy[val_col].values)
     w_gaps = robjects.FloatVector(w_gaps)
+
     # StructTs-filling
-    without_gaps_structts = np.array(kalman_StructTs(
-        w_gaps, model="StructTS", smooth=True))
+    without_gaps_structts = np.array(kalman_StructTs(w_gaps, model="StructTS", smooth=True))
     # arima-filling
-    without_gaps_arima = np.array(kalman_StructTs(
-        w_gaps, model="auto.arima", smooth=True))
+    without_gaps_arima = np.array(kalman_StructTs(w_gaps, model="auto.arima", smooth=True))
 
     # first check if folder exists to save data in
-    isExist = os.path.exists('data/' + str(year) + '/' + country + '/kalman')
+    isExist = os.path.exists('data/' + datatype + '/' + str(year) + '/' + country + '/kalman')
     if not isExist:
-        os.makedirs('data/' + str(year) + '/' + country + '/kalman')
+        os.makedirs('data/' + datatype + '/' + str(year) + '/' + country + '/kalman')
 
     # combine filled values with date and time again
     df_structts = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gaps_structts)], axis=1)
     df_arima = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gaps_arima)], axis=1)
     # set header
-    df_structts.columns = ["DateTime", "ActualGenerationOutput"]
-    df_arima.columns = ["DateTime", "ActualGenerationOutput"]
+    df_structts.columns = header
+    df_arima.columns = header
 
     # save the combined df as csv
-    pd.DataFrame(df_structts).to_csv(
-        'data/' + str(year) + '/' + country + '/kalman/' + atc + '_' + tech + '_filled_structts.csv',
-        sep='\t', encoding='utf-8', index=False, header=['DateTime', 'ActualGenerationOutput'])
-    pd.DataFrame(df_arima).to_csv(
-        'data/' + str(year) + '/' + country + '/kalman/' + atc + '_' + tech + '_filled_arima.csv',
-        sep='\t', encoding='utf-8', index=False, header=['DateTime', 'ActualGenerationOutput'])
+    pd.DataFrame(df_structts).to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/kalman/' + atc + '_' +
+                                     tech + '_filled_structts.csv', sep='\t', encoding='utf-8', index=False,
+                                     header=header)
+    pd.DataFrame(df_arima).to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/kalman/' + atc + '_' + tech
+                                  + '_filled_arima.csv', sep='\t', encoding='utf-8', index=False, header=header)
 
     return df_structts, df_arima
