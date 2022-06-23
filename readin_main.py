@@ -3,14 +3,12 @@ Created on April 2022
 
 @author: Niko Suchowitz
 """
+import numpy as np
+
 import readin_aux
-import gap_finder
 import glob
 import time
 from csv import *
-import pandas as pd
-import pathlib
-import readin_to_year
 
 
 def readin_data():
@@ -22,8 +20,11 @@ def readin_data():
     # start time to check how long program was running
     start_time = time.time()
 
-    # define the year of the data
-    year = '2021'
+    # define the year and the type of the data
+    year = '2018'
+    # TODO: crossborder_flow missing
+    # options for datatype => 'agpt' (ActGenPerType), 'totalload'(ActTotLoad), 'crossborder_flow
+    datatype = 'totalload'
 
     # reset the csv-file which shows which countries have gaps
     with open("countries_w_gaps.csv", "w") as csvfile:
@@ -32,43 +33,32 @@ def readin_data():
         # write the header into the csv
         writer_obj.writerow(['Year', 'Country', 'Technology', 'AreaTypeCode', 'MissingPercentage'])
 
-    # get all the monthly csv-files
-    files = glob.glob('original_data/' + year + '/' + year + '_??_AggregatedGenerationPerType_16.1.B_C.csv',
-                      recursive=False)
+    # the read_in for 'Aggregated Generation per Type' (ENTSO-E Code: 16.1.B&C)
+    if datatype == 'agpt':
+        val_col = 'ActualGenerationOutput'
+        header = ['DateTime', 'AreaTypeCode', 'MapCode', 'ProductionType', 'ActualGenerationOutput']
+        # get all the monthly csv-files
+        files = glob.glob('data/agpt/original_data/' + year + '/'
+                          + year + '_??_AggregatedGenerationPerType_16.1.B_C.csv', recursive=False)
+
+    # the read_in for 'Actual Total Load' (ENTSO-E Code: 16.1.A)
+    elif datatype == 'totalload':
+        val_col = 'TotalLoadValue'
+        header = ['DateTime', 'AreaTypeCode', 'MapCode', 'TotalLoadValue']
+        # get all the monthly csv-files
+        files = glob.glob('data/totalload/original_data/' + year + '/' + year + '_??_ActualTotalLoad_6.1.A.csv',
+                          recursive=False)
+
+    # TODO: everything for crossborder; 12.1.G correct data?
+    # the read_in for 'Physical Flows' (ENTSO-E Code: 12.1.G)
+    elif datatype == 'crossborder_flow':
+        val_col = ''
+        header = []
+        # get all the monthly csv-files
+        files = glob.glob('', recursive=False)
     files.sort()
-    for file in files:
-        # get the string of the month from the file-names
-        df_path = pathlib.PurePath(file).parts[2]
-        month = df_path[5:7]
-
-        # read in the file
-        file_df = pd.read_csv(file, sep='\t', encoding='utf-8')
-        # change the type of the 'DateTime' column to datetime, then sort the dataframe from first to last of the month
-        file_df['DateTime'] = pd.to_datetime(file_df["DateTime"])
-        file_df.sort_values(by='DateTime', inplace=True)
-        file_df = file_df.reset_index(drop=True)
-        # drop unnecessary columns
-        file_df = file_df.loc[:, ['DateTime', 'AreaTypeCode', 'MapCode', 'ProductionType', 'ActualGenerationOutput']]
-
-        # create list for all countries and save the list
-        countries = readin_aux.list_countries(file_df)
-        # create list for all AreaTypeCodes and save the list
-        atcodes = readin_aux.list_areatypecode(file_df)
-        # create list for all technologies and save the list
-        technologies = readin_aux.list_technologies(file_df)
-
-        # find all gaps for each technology per country
-        for atcode in atcodes:
-            for technology in technologies:
-                for country in countries:
-                    gap_finder.check_for_gaps(file_df, atcode, country, technology, month, year)
-        # TODO: need of double loop?
-        # unify for every combination the year
-        for atcode in atcodes:
-            for technology in technologies:
-                for country in countries:
-                    # unify the year to fill the gaps afterwards
-                    readin_to_year.unify_year(year, country, atcode, technology)
+    # TODO: neue function
+    readin_aux.process_files(files, datatype, val_col, header, year)
 
     # stop time to check how long program was running
     end_time = time.time()

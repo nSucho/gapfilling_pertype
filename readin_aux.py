@@ -7,6 +7,77 @@ couple of auxiliary functions for read_in.py
 """
 import os
 import pandas as pd
+import pathlib
+import gap_finder
+import readin_to_year
+
+
+def process_files(files, datatype, val_col, header, year):
+    """
+
+    :param files:
+    :type files:
+    :param datatype:
+    :type datatype:
+    :param val_col:
+    :type val_col:
+    :param header:
+    :type header:
+    :param year:
+    :type year:
+    :return:
+    :rtype:
+    """
+    for file in files:
+        # get the string of the month from the file-names
+        df_path = pathlib.PurePath(file).parts[4]
+        month = df_path[5:7]
+
+        # read in the file
+        file_df = pd.read_csv(file, sep='\t', encoding='utf-8')
+        # change the type of the 'DateTime' column to datetime, then sort the dataframe from first to last of the month
+        file_df['DateTime'] = pd.to_datetime(file_df["DateTime"])
+        file_df.sort_values(by='DateTime', inplace=True)
+        file_df = file_df.reset_index(drop=True)
+        # drop unnecessary columns
+        file_df = file_df.loc[:, header]
+
+        # create list for all countries and save the list
+        countries = list_countries(file_df)
+        # create list for all AreaTypeCodes and save the list
+        atcodes = list_areatypecode(file_df)
+
+        # find all gaps for each technology per country
+        if datatype == 'agpt':
+            # create list for all technologies and save the list
+            technologies = list_technologies(file_df)
+            for atcode in atcodes:
+                for technology in technologies:
+                    for country in countries:
+                        gap_finder.check_for_gaps(file_df, atcode, country, technology, month, year, val_col, header,
+                                                  datatype)
+            # TODO: need of double loop?
+            # unify for every combination the year to fill the gaps afterwards
+            for atcode in atcodes:
+                for technology in technologies:
+                    for country in countries:
+                        readin_to_year.unify_year(year, country, atcode, technology, datatype, val_col, header)
+
+        # find all gaps for each country
+        elif datatype == 'totalload':
+            # find all gaps for each technology per country
+            for atcode in atcodes:
+                for country in countries:
+                    gap_finder.check_for_gaps(file_df, atcode, country, 'none', month, year, val_col, header, datatype)
+            # TODO: need of double loop?
+            # unify for every combination the year to fill the gaps afterwards
+            for atcode in atcodes:
+                for country in countries:
+                    readin_to_year.unify_year(year, country, atcode, 'none', datatype, val_col, header)
+
+        # TODO: erstellen
+        elif datatype == 'crossborder_flow':
+            pass
 
 
 def list_countries(file_df):
@@ -62,7 +133,7 @@ def list_technologies(file_df):
     tech_list = file_copy['ProductionType'].drop_duplicates()
 
     # replace the '/' because else throws error
-    tech_list = list(map(lambda x:x.replace('Fossil Brown coal/Lignite', 'Fossil Brown coal Lignite'), tech_list))
+    tech_list = list(map(lambda x: x.replace('Fossil Brown coal/Lignite', 'Fossil Brown coal Lignite'), tech_list))
     tech_list.sort()
 
     # create df from list to save as csv

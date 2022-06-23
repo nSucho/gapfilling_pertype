@@ -8,7 +8,7 @@ import glob
 import csv
 
 
-def unify_year(year, country, areatypecode, technology):
+def unify_year(year, country, areatypecode, technology, datatype, val_col, header):
     """
 
     :param year:
@@ -19,6 +19,12 @@ def unify_year(year, country, areatypecode, technology):
     :type areatypecode:
     :param technology:
     :type technology:
+    :param datatype:
+    :type datatype:
+    :param val_col:
+    :type val_col:
+    :param header:
+    :type header:
     :return:
     :rtype:
     """
@@ -26,8 +32,8 @@ def unify_year(year, country, areatypecode, technology):
     try:
         # read in all the monthly csv-files of this combination of country, atc and technology
         files = glob.glob(
-            'data/' + str(year) + '/' + country + '/final_sorted_tech/??_' + areatypecode + '_' + technology + '_?*',
-            recursive=False)
+            'data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted/??_' + areatypecode + '_' +
+            technology + '_?*', recursive=False)
 
         # concat to one dataframe and reset index
         df_year = pd.concat([pd.read_csv(file, sep='\t', encoding='utf-8') for file in files])
@@ -36,20 +42,18 @@ def unify_year(year, country, areatypecode, technology):
         df_year.sort_values(by='DateTime', inplace=True)
 
         # safe whole year as csv
-        df_year.to_csv(
-            'data/' + str(year) + '/' + country + '/' + str(year) + '_' + areatypecode + '_' + technology + '.csv',
-            sep='\t', encoding='utf-8', index=False,
-            header=['DateTime', 'AreaTypeCode', 'MapCode', 'ProductionType', 'ActualGenerationOutput'])
+        df_year.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/' + str(year) + '_' + areatypecode +
+                       '_' + technology + '.csv', sep='\t', encoding='utf-8', index=False, header=header)
 
         # list the length of the gaps
-        analyze_gap_length(df_year, year, country, areatypecode, technology)
+        analyze_gap_length(df_year, year, country, areatypecode, technology, datatype, val_col)
 
     except Exception as e:
-        # print("Error is found: "+str(e)+"||"+country+"--"+areatypecode+"--"+technology)
-        pass
+        print("Error is found: "+str(e)+"||"+country+"--"+areatypecode+"--"+technology)
+        #pass
 
 
-def analyze_gap_length(check_df, year, country, areatypecode, technology):
+def analyze_gap_length(check_df, year, country, areatypecode, technology, datatype, val_col):
     """
 
     :param check_df:
@@ -62,6 +66,10 @@ def analyze_gap_length(check_df, year, country, areatypecode, technology):
     :type areatypecode:
     :param technology:
     :type technology:
+    :param datatype:
+    :type datatype:
+    :param val_col:
+    :type val_col:
     :return:
     :rtype:
     """
@@ -86,17 +94,17 @@ def analyze_gap_length(check_df, year, country, areatypecode, technology):
 
     # gives back length of gaps as index and the amount of the gap-lengths per coloumn
     consecutive_gaps = check_df.apply(lambda d:consecutive_nans(d).value_counts()).fillna(0)
-    # drop all coloums except 'ActualGenerationOutput'
-    consecutive_gaps = consecutive_gaps[['ActualGenerationOutput']]
+    # drop all coloums except val_col
+    consecutive_gaps = consecutive_gaps[[val_col]]
 
     # get the gap-length as own column
     consecutive_gaps.reset_index(inplace=True)
 
-    calc_missing_data(check_df, year, country, areatypecode, technology)
+    calc_missing_data(check_df, year, country, areatypecode, technology, val_col)
 
-    consecutive_gaps.to_csv('data/' + str(year) + '/' + country + '/' + str(year) + '_' + areatypecode + '_'
-                            + technology + '_gaps_length.csv', sep='\t', encoding='utf-8', index=False,
-                            header=['GapLength', 'AmountInAGO'])
+    consecutive_gaps.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/' + str(year) + '_' +
+                            areatypecode + '_' + technology + '_gaps_length.csv', sep='\t', encoding='utf-8',
+                            index=False, header=['GapLength', 'TotalAmountOfThisLength'])
 
 
 def consecutive_nans(ds):
@@ -110,7 +118,7 @@ def consecutive_nans(ds):
     return ds.isnull().astype(int).groupby(ds.notnull().astype(int).cumsum()).sum()
 
 
-def calc_missing_data(df_to_check, year, country, areatypecode, technology):
+def calc_missing_data(df_to_check, year, country, areatypecode, technology, val_col):
     """
 
     :param df_to_check:
@@ -123,17 +131,19 @@ def calc_missing_data(df_to_check, year, country, areatypecode, technology):
     :type areatypecode:
     :param technology:
     :type technology:
+    :param val_col:
+    :type val_col:
     :return:
     :rtype:
     """
     # calc the percentage of missing data
-    missing_data_o = df_to_check['ActualGenerationOutput'].isna().sum()
+    missing_data_o = df_to_check[val_col].isna().sum()
     missing_percent = (missing_data_o / len(df_to_check.index)) * 100
 
     # variable for saving the gaps-info later
     field_names = ['Year', 'Country', 'Technology', 'AreaTypeCode', 'MissingPercentage']
-    gap_dict = {'Year':year, 'Country':country, 'Technology':technology, 'AreaTypeCode':areatypecode,
-                'MissingPercentage':missing_percent}
+    gap_dict = {'Year': year, 'Country': country, 'Technology': technology, 'AreaTypeCode': areatypecode,
+                'MissingPercentage': missing_percent}
 
     # save the country in the csv of countries with gaps
     with open("countries_w_gaps.csv", "a") as csvfile:
@@ -141,5 +151,4 @@ def calc_missing_data(df_to_check, year, country, areatypecode, technology):
         dictwriter_object = csv.DictWriter(csvfile, delimiter='\t', fieldnames=field_names)
         # write the dict into the csv
         dictwriter_object.writerow(gap_dict)
-
     # return missing_percent
