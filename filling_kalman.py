@@ -48,11 +48,14 @@ def kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col, heade
     # StructTs-filling
     # ----------
     without_gaps_structts = np.array(kalman_StructTs(w_gaps, model="StructTS", smooth=True))
+
     # ----------
     # arima-filling
     # ----------
-    without_gaps_arima = np.array(kalman_StructTs(w_gaps, model="auto.arima", smooth=True))
-
+    # TODO: added fast
+    without_gaps_arima_fast = np.array(kalman_StructTs(w_gaps, model="auto.arima", smooth=True))
+    without_gaps_arima = np.array(kalman_StructTs(w_gaps, model="auto.arima", smooth=True, stepwise=False,
+                                                  approximation=False))
     # first check if folder exists to save data in
     isExist = os.path.exists('data/' + datatype + '/' + str(year) + '/' + country + '/kalman')
     if not isExist:
@@ -60,9 +63,13 @@ def kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col, heade
 
     # combine filled values with date and time again
     df_structts = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gaps_structts)], axis=1)
+    # TODO: added fast
+    df_arima_fast = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gaps_arima_fast)], axis=1)
     df_arima = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gaps_arima)], axis=1)
     # set header
     df_structts.columns = header
+    # TODO: added fast
+    df_arima_fast.columns = header
     df_arima.columns = header
 
     # save the combined df as csv
@@ -72,4 +79,4 @@ def kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col, heade
     pd.DataFrame(df_arima).to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/kalman/' + atc + '_' + tech
                                   + '_filled_arima.csv', sep='\t', encoding='utf-8', index=False, header=header)
 
-    return df_structts, df_arima
+    return df_structts, df_arima, df_arima_fast

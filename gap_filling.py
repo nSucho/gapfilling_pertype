@@ -57,7 +57,7 @@ def gapfill_main():
     original_series = np.array(original[val_col])
 
     # ----------
-    # filling the gaps with the average of the week and calculate the validation values
+    # average of the week to fill the gaps and calculate the validation values
     # ----------
     avg_week, lin_avg_week = filling_avg.avg_week_method(data_w_nan, country, year, atc, tech, datatype, val_col,
                                                          header)
@@ -69,7 +69,7 @@ def gapfill_main():
     lin_avg_week_vali = gap_filling_aux.validation(original_series, lin_avg_week_series)
 
     # ----------
-    # filling the gaps with the first fedot-methods and calculate the validation values
+    # fedot-methods to fill the gaps and calculate the validation values
     # ----------
     #fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header)
     # TODO: kick out again
@@ -84,18 +84,23 @@ def gapfill_main():
     fedot_bi_vali = gap_filling_aux.validation(original_series, fedot_bi_series)
 
     # ----------
-    # filling the gaps with Kalman-filter and calculate the validation values
+    # Kalman-filter to fill gaps and calculate the validation values
     # ----------
-    #kalman_struct, kalman_arima = filling_kalman.kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col,
-    #                                                           header)
+    # TODO: added fast
+    kalman_struct, kalman_arima, kalman_arima_fast = filling_kalman.kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col,
+                                                               header)
     # TODO: kick out again
     # for testing read in files instead of fill
-    kalman_struct, kalman_arima = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'kalman', 'structts',
-                                                              'arima')
+    #kalman_struct, kalman_arima = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'kalman', 'structts',
+    #                                                          'arima')
     # create an array to calculate the validation
+    # TODO: added fast
+    kalman_fast_series = np.array(kalman_arima_fast[val_col])
     kalman_struct_series = np.array(kalman_struct[val_col])
     kalman_arima_series = np.array(kalman_arima[val_col])
     # validate the gap_filling
+    # TODO: added fast
+    kalman_fast_vali = gap_filling_aux.validation(original_series, kalman_fast_series)
     kalman_struct_vali = gap_filling_aux.validation(original_series, kalman_struct_series)
     kalman_arima_vali = gap_filling_aux.validation(original_series, kalman_arima_series)
 
@@ -116,6 +121,8 @@ def gapfill_main():
     print('Average week, linear average week: ', avg_week_vali, lin_avg_week_vali)
     print('FEDOT forward, bidirect: ', fedot_fwrd_vali, fedot_bi_vali)
     print('Kalman structTS, arima: ', kalman_struct_vali, kalman_arima_vali)
+    # TODO: added fast
+    print('Kalman fast, slow: ', kalman_fast_vali, kalman_arima_vali)
 
     # stop time to check how long program was running
     end_time = time.time()

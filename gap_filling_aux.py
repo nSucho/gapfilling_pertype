@@ -57,7 +57,7 @@ def insert_gaps(original, val_col):
     # frac = 0.1 means 10% of the data will be gaps
     for col in original_copy.columns:
         if col == val_col:
-            original_copy.loc[original_copy.sample(frac=0.05).index, col] = np.nan
+            original_copy.loc[original_copy.sample(frac=0.1).index, col] = np.nan
     return original_copy
 
 

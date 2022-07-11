@@ -4,10 +4,11 @@ Created on June 2022
 @author: Niko Suchowitz
 """
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import numpy as np
+import pandas as pd
 
 
-# TODO: refactor time index to act. time
 def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, avg_week, lin_avg_week, val_col, datatype,
                  year, country, tech):
     """
@@ -39,7 +40,7 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
     :return:
     :rtype:
     """
-
+    # create datetime-series
     # get the difference and standardize it
     difference_avg_week = substract(original[val_col], avg_week[val_col])
     stand_avg_week = standardizing(difference_avg_week)
@@ -57,40 +58,46 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
     # ----------
     # plot the difference
     # ----------
-    plt.plot(difference_avg_week, color='#377eb8', label='Actual values in the gaps')
-    plt.plot(difference_lin_avg_week, color='#ff7f00', label='Local polynomial')
-    plt.plot(difference_fedot_fwrd, color='#999999', label='Actual values in the gaps')
-    plt.plot(difference_fedot_bi, color='#f781bf', label='Local polynomial')
-    plt.plot(difference_kalman_struct, color='#e41a1c', label='Actual values in the gaps')
-    plt.plot(difference_kalman_arima, color='#dede00', label='Local polynomial')
-    plt.xlabel("Time Index")
-    plt.ylabel("Values")
+    plt.plot(original['DateTime'], difference_avg_week, color='#377eb8', label='Actual values in the gaps')
+    plt.plot(original['DateTime'], difference_lin_avg_week, color='#ff7f00', label='Local polynomial')
+    plt.plot(original['DateTime'], difference_fedot_fwrd, color='#999999', label='Actual values in the gaps')
+    plt.plot(original['DateTime'], difference_fedot_bi, color='#f781bf', label='Local polynomial')
+    plt.plot(original['DateTime'], difference_kalman_struct, color='#e41a1c', label='Actual values in the gaps')
+    plt.plot(original['DateTime'], difference_kalman_arima, color='#dede00', label='Local polynomial')
+    plt.xticks(rotation=30, ha='right')
+    plt.xlabel("Date Time")
+    plt.ylabel("Difference \'original\'-value to \'method\'-value")
     plt.legend(["Average week", "Linear average week", "FEDOT forward", "FEDOT bidirect", "Kalman structTS",
                 "Kalman arima"])
+    plt.title('Country: ' + country + ', Technology: ' + tech + ', Year: ' + year)
+    plt.tight_layout()
     plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + 'differences.png', bbox_inches='tight')
-    #plt.show()
+    plt.show()
     plt.close()
 
     # ----------
     # plot the standardizing
     # ----------
     # TODO: why is this good?
-    plt.plot(stand_avg_week, color='#377eb8', label='Actual values in the gaps')
-    plt.plot(stand_lin_avg_week, color='#ff7f00', label='Local polynomial')
-    plt.plot(stand_fedot_fwrd, color='#999999', label='Actual values in the gaps')
-    plt.plot(stand_fedot_bi, color='#f781bf', label='Local polynomial')
-    plt.plot(stand_kalman_struct, color='#e41a1c', label='Actual values in the gaps')
-    plt.plot(stand_kalman_arima, color='#dede00', label='Local polynomial')
+    plt.plot(original['DateTime'], stand_avg_week, color='#377eb8', label='Actual values in the gaps')
+    plt.plot(original['DateTime'], stand_lin_avg_week, color='#ff7f00', label='Local polynomial')
+    plt.plot(original['DateTime'], stand_fedot_fwrd, color='#999999', label='Actual values in the gaps')
+    plt.plot(original['DateTime'], stand_fedot_bi, color='#f781bf', label='Local polynomial')
+    plt.plot(original['DateTime'], stand_kalman_struct, color='#e41a1c', label='Actual values in the gaps')
+    plt.plot(original['DateTime'], stand_kalman_arima, color='#dede00', label='Local polynomial')
+    plt.xticks(rotation=30, ha='right')
+    plt.xlabel("Date Time")
     plt.xlabel("Time Index")
-    plt.ylabel("Values")
+    plt.ylabel("Standardized difference \'original\'-value to \'method\'-value")
     plt.legend(["Average week", "Linear average week", "FEDOT forward", "FEDOT bidirect", "Kalman structTS",
                 "Kalman arima"])
+    plt.title('Country: ' + country + ', Technology: ' + tech + ', Year: ' + year)
+    plt.tight_layout()
     plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + 'stand.png', bbox_inches='tight')
-    #plt.show()
+    plt.show()
     plt.close()
 
 
-# TODO: change xticks
 def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, datatype, year, country,
                     tech):
     """
@@ -119,73 +126,62 @@ def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct,
     :rtype:
     """
     # ----------
-    # MAE
+    # general set up
     # ----------
-    x = np.arange(1)
+    methods = ["Average week", "Linear average week", "FEDOT forward", "FEDOT bidirect", "Kalman structTS",
+               "Kalman arima"]
+    amount_x = np.arange(len(methods))
     # width of the  bars
     width = 0.2
-    # plot
-    plt.bar(x - 0.6, avg_week[0], width, color='#377eb8', hatch='/')
-    plt.bar(x - 0.4, lin_avg_week[0], width, color='#ff7f00', hatch='\\')
-    plt.bar(x - 0.1, fedot_fwrd[0], width, color='#999999', hatch='.')
-    plt.bar(x + 0.1, fedot_bi[0], width, color='#f781bf', hatch='o')
-    plt.bar(x + 0.4, kalman_struct[0], width, color='#e41a1c', hatch='+')
-    plt.bar(x + 0.6, kalman_arima[0], width, color='#dede00', hatch='x')
-    plt.xticks(x, ['Mean Average Error'])
-    #plt.xlabel("Validation")
-    plt.ylabel("Scores")
-    # each method one bar
-    plt.legend(["Average week", "Linear average week", "FEDOT forward", "FEDOT bidirect", "Kalman structTS",
-                "Kalman arima"])
+    # color of the bars
+    color = ['#377eb8', '#ff7f00', '#999999', '#f781bf', '#e41a1c', '#dede00']
+    # pattern of the plots
+    hatch = ['/', '\\', '.', 'o', '+', 'x']
+
+    # ----------
+    # plot MAE
+    # ----------
+    y_values = [avg_week[0], lin_avg_week[0], fedot_fwrd[0], fedot_bi[0], kalman_struct[0], kalman_arima[0]]
+    bar_plot = plt.bar(amount_x, y_values, color=color, hatch=hatch, width = 0.2)
+    plt.xticks(amount_x, methods, rotation=30)
+    plt.ylabel("\'Mean Average Error\' -values")
     plt.title('Country: ' + country + ', Technology: ' + tech + ', Year: ' + year)
+    # adds the values of the bars on top of it
+    add_bar_label(bar_plot, 2)
+    # fits the boundaries of the plot, so nothing gets cut off
+    plt.tight_layout()
     plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + 'mae.png', bbox_inches='tight')
-    #plt.show()
+    # plt.show()
     plt.close()
 
     # ----------
-    # RMSE
+    # plot RMSE
     # ----------
-    x = np.arange(1)
-    # width of the  bars
-    width = 0.2
-    # plot
-    plt.bar(x - 0.6, avg_week[1], width, color='#377eb8', hatch='/')
-    plt.bar(x - 0.4, lin_avg_week[1], width, color='#ff7f00', hatch='\\')
-    plt.bar(x - 0.1, fedot_fwrd[1], width, color='#999999', hatch='.')
-    plt.bar(x + 0.1, fedot_bi[1], width, color='#f781bf', hatch='o')
-    plt.bar(x + 0.4, kalman_struct[1], width, color='#e41a1c', hatch='+')
-    plt.bar(x + 0.6, kalman_arima[1], width, color='#dede00', hatch='x')
-    plt.xticks(x, ['Root Mean Squared Error'])
-    #plt.xlabel("Validation")
-    plt.ylabel("Scores")
-    # each method one bar
-    plt.legend(["Average week", "Linear average week", "FEDOT forward", "FEDOT bidirect", "Kalman structTS",
-                "Kalman arima"])
+    y_values = [avg_week[1], lin_avg_week[1], fedot_fwrd[1], fedot_bi[1], kalman_struct[1], kalman_arima[1]]
+    bar_plot = plt.bar(amount_x, y_values, color=color, hatch=hatch)
+    plt.xticks(amount_x, methods, rotation=30)
+    plt.ylabel("\'Root Mean Squared Error\' -values")
     plt.title('Country: ' + country + ', Technology: ' + tech + ', Year: ' + year)
+    # adds the values of the bars on top of it
+    add_bar_label(bar_plot, 2)
+    # fits the boundaries of the plot, so nothing gets cut off
+    plt.tight_layout()
     plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + 'rmse.png', bbox_inches='tight')
-    #plt.show()
+    # plt.show()
     plt.close()
 
     # ----------
-    # R^2
+    # plot R^2
     # ----------
-    x = np.arange(1)
-    # width of the bars
-    width = 0.2
-    # plot
-    plt.bar(x - 0.6, avg_week[2], width, color='#377eb8', hatch='/')
-    plt.bar(x - 0.4, lin_avg_week[2], width, color='#ff7f00', hatch='\\')
-    plt.bar(x - 0.1, fedot_fwrd[2], width, color='#999999', hatch='.')
-    plt.bar(x + 0.1, fedot_bi[2], width, color='#f781bf', hatch='o')
-    plt.bar(x + 0.4, kalman_struct[2], width, color='#e41a1c', hatch='+')
-    plt.bar(x + 0.6, kalman_arima[2], width, color='#dede00', hatch='x')
-    plt.xticks(x, ['R^2'])
-    #plt.xlabel("Validation")
-    plt.ylabel("Scores")
-    # each method one bar
-    plt.legend(["Average week", "Linear average week", "FEDOT forward", "FEDOT bidirect", "Kalman structTS",
-                "Kalman arima"])
+    y_values = [avg_week[2], lin_avg_week[2], fedot_fwrd[2], fedot_bi[2], kalman_struct[2], kalman_arima[2]]
+    bar_plot = plt.bar(amount_x, y_values, color=color, hatch=hatch)
+    plt.xticks(amount_x, methods, rotation=30)
+    plt.ylabel(u"\'R\u00b2\' -values")
     plt.title('Country: ' + country + ', Technology: ' + tech + ', Year: ' + year)
+    # adds the values of the bars on top of it
+    add_bar_label(bar_plot, 4)
+    # fits the boundaries of the plot, so nothing gets cut off
+    plt.tight_layout()
     plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + 'r2.png', bbox_inches='tight')
     #plt.show()
     plt.close()
@@ -215,3 +211,18 @@ def standardizing(array1):
     """
     x = (array1 - array1.mean()) / array1.std()
     return x
+
+
+def add_bar_label(bar_plot, after_dec):
+    """
+    Adds values on top of the bars
+    :param bar_plot:
+    :type bar_plot:
+    :param after_dec:
+    :type after_dec:
+    :return:
+    :rtype:
+    """
+    for bar in bar_plot:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width() / 2., height, round(height, after_dec), ha='center', va='bottom')
