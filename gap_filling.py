@@ -37,7 +37,13 @@ def gapfill_main():
     country = 'DE'
     tech = 'Biomass'
     # if 'create_gaps = True' there will be random gaps inserted into the data
-    create_gaps = True
+    # if 'duplicate_gaps = True' the gaps from different file will be inserted into the data
+    # one of both should be false
+    create_gaps = False
+    duplicate_gaps = True
+    # country which the gaps should be duplicated from
+    code_wgaps = 'BA'
+    atc_gaps = 'BZN'
     if datatype == 'agpt':
         val_col = 'ActualGenerationOutput'
         header = ['DateTime', 'ActualGenerationOutput']
@@ -53,7 +59,8 @@ def gapfill_main():
         header = []
 
     # read in the file (and create gaps)
-    original, data_w_nan = gap_filling_aux.read_in(datatype, year, atc, country, tech, create_gaps, val_col)
+    original, data_w_nan = gap_filling_aux.read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps,
+                                                   code_wgaps, atc_gaps, val_col)
     original_series = np.array(original[val_col])
 
     # ----------

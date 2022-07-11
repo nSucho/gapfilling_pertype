@@ -72,7 +72,7 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
     plt.title('Country: ' + country + ', Technology: ' + tech + ', Year: ' + year)
     plt.tight_layout()
     plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + 'differences.png', bbox_inches='tight')
-    plt.show()
+    #plt.show()
     plt.close()
 
     # ----------
@@ -94,7 +94,7 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
     plt.title('Country: ' + country + ', Technology: ' + tech + ', Year: ' + year)
     plt.tight_layout()
     plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + 'stand.png', bbox_inches='tight')
-    plt.show()
+    #plt.show()
     plt.close()
 
 

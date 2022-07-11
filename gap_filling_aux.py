@@ -6,11 +6,12 @@ Created on April 2022
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import numpy as np
 import pandas as pd
+import glob
 # seed 10 is working with agpt and totalload
 np.random.seed(10)
 
 
-def read_in(datatype, year, atc, country, tech, create_gaps, val_col):
+def read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps, code_country_wgaps, atc_gaps, val_col):
     """
 
     :param datatype:
@@ -25,6 +26,12 @@ def read_in(datatype, year, atc, country, tech, create_gaps, val_col):
     :type tech:
     :param create_gaps:
     :type create_gaps:
+    :param duplicate_gaps:
+    :type duplicate_gaps:
+    :param code_country_wgaps:
+    :type code_country_wgaps:
+    :param atc_gaps:
+    :type atc_gaps:
     :param val_col:
     :type val_col:
     :return:
@@ -37,6 +44,10 @@ def read_in(datatype, year, atc, country, tech, create_gaps, val_col):
     original['DateTime'] = pd.to_datetime(original['DateTime'])
     if create_gaps:
         data_w_nan = insert_gaps(original, val_col)
+    if duplicate_gaps:
+        country_wgaps = pd.read_csv('data/' + datatype + '/' + str(year) + '/' + code_country_wgaps + '/' + str(year) +
+                                    '_' + atc_gaps + '_' + tech + '.csv', sep='\t', encoding='utf-8')
+        data_w_nan = duplicate_nans(original, country_wgaps, val_col)
     return original, data_w_nan
 
 
@@ -59,6 +70,31 @@ def insert_gaps(original, val_col):
         if col == val_col:
             original_copy.loc[original_copy.sample(frac=0.1).index, col] = np.nan
     return original_copy
+
+
+def duplicate_nans(df_wout_nan, gap_data, val_col):
+    """
+    duplicates the empty rows into a gapfree dataframe
+    :param df_wout_nan: the dataframe we want to fill with gaps
+    :type df_wout_nan:
+    :param gap_data: mapcode of the dataframe we want to duplicate the gaps from
+    :type gap_data:
+    :param val_col:
+    :type val_col:
+    :return:
+    :rtype:
+    """
+    # copy so we don't modify the original
+    df_wout_copy = df_wout_nan.copy()
+
+    # create an array of the indexes with nan
+    nan_indexes = pd.isnull(gap_data).any(1).to_numpy().nonzero()
+
+    # duplicate gaps in gap-less file
+    for gap_index in nan_indexes[0]:
+        df_wout_copy.loc[gap_index, val_col] = np.nan
+
+    return df_wout_copy
 
 
 def validation(original, filled_gaps):
