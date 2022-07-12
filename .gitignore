@@ -1,5 +1,3 @@
-original_data/
-data/
 areatypecode_list.txt
 countries_w_gaps.csv
 country_list.txt
@@ -9,4 +7,4 @@ country_list.csv
 areatypecode_list.csv
 technology_list.csv
 plots/
-test.py
+data/

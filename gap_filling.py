@@ -28,12 +28,15 @@ def gapfill_main():
     # ----------
     # set the values
     # ----------
-    # TODO: crossborder_flow missing
-    # options for datatype => 'agpt' (ActGenPerType), 'totalload'(ActTotLoad), 'crossborder_flow
+    # options for datatype => 'agpt' (ActGenPerType) or 'totalload'(ActTotLoad)
     datatype = 'totalload'
+    # the year of the data
     year = '2018'
+    # the AreaTypeCode of the data
     atc = 'CTY'
+    # the country code of the data
     country = 'DE'
+    # the technology of the data
     tech = 'Biomass'
     # if 'create_gaps = True' there will be random gaps inserted into the data
     # if 'duplicate_gaps = True' the gaps from different file will be inserted into the data
@@ -51,11 +54,6 @@ def gapfill_main():
         tech = 'none'
         val_col = 'TotalLoadValue'
         header = ['DateTime', 'TotalLoadValue']
-    elif datatype == 'crossborder_flow':
-        # change tech to 'none' because the tables don't have that
-        tech = 'none'
-        val_col = ''
-        header = []
 
     # read in the file (and create gaps)
     original, data_w_nan = gap_filling_aux.read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps,

@@ -56,9 +56,6 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
                                       (file_df["AreaTypeCode"] == areatypecode)]
         elif datatype == 'totalload':
             act_data_df = file_df.loc[(file_df["MapCode"] == country) & (file_df["AreaTypeCode"] == areatypecode)]
-        # TODO: erstellen
-        elif datatype == 'crossborder_flow':
-            pass
 
         # ----------
         # if the 'DateTime' is not in hourly steps, we down sample to hours

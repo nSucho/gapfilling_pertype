@@ -77,10 +77,6 @@ def process_files(files, datatype, val_col, header, year):
             for atcode in atcodes:
                 for country in countries:
                     readin_to_year.unify_year(year, country, atcode, 'none', datatype, val_col, header)
-        # CrossborderFlow
-        # TODO: erstellen
-        elif datatype == 'crossborder_flow':
-            pass
 
 
 def list_countries(file_df):

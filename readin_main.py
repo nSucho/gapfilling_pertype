@@ -23,9 +23,9 @@ def readin_data():
     # ----------
     # define the year and the type of the data
     # ----------
-    year = '2018'
-    # options for datatype => 'agpt' (ActGenPerType), 'totalload'(ActTotLoad), 'crossborder_flow'
-    datatype = 'totalload'
+    year = '2021'
+    # options for datatype => 'agpt' (ActGenPerType) or 'totalload'(ActTotLoad)
+    datatype = 'agpt'
 
     # reset the countries_w_gaps.csv, to fill with new countries, which have gaps, later
     with open("countries_w_gaps.csv", "w") as csvfile:
@@ -33,6 +33,7 @@ def readin_data():
         writer_obj = writer(csvfile, delimiter='\t')
         # write the header into the csv
         writer_obj.writerow(['Year', 'Country', 'Technology', 'AreaTypeCode', 'MissingPercentage'])
+
     # ----------
     # the read_in for 'Aggregated Generation per Type' (ENTSO-E Code: 16.1.B&C)
     # ----------
@@ -42,6 +43,7 @@ def readin_data():
         # get all the monthly csv-files
         files = glob.glob('data/agpt/original_data/' + year + '/'
                           + year + '_??_AggregatedGenerationPerType_16.1.B_C.csv', recursive=False)
+
     # ----------
     # the read_in for 'Actual Total Load' (ENTSO-E Code: 16.1.A)
     # ----------
@@ -51,15 +53,7 @@ def readin_data():
         # get all the monthly csv-files
         files = glob.glob('data/totalload/original_data/' + year + '/' + year + '_??_ActualTotalLoad_6.1.A.csv',
                           recursive=False)
-    # ----------
-    # the read_in for 'Physical Flows' (ENTSO-E Code: 12.1.G)
-    # ----------
-    # TODO: erstellen; 12.1.G correct data?
-    elif datatype == 'crossborder_flow':
-        val_col = ''
-        header = []
-        # get all the monthly csv-files
-        files = glob.glob('', recursive=False)
+
     files.sort()
     readin_aux.process_files(files, datatype, val_col, header, year)
 
