@@ -15,7 +15,6 @@ import readin_aux # only for the time calculation
 import os
 
 
-# TODO: add all validations into one list/dict?
 # add filling for TOTALLOAD
 def gapfill_main():
     """
