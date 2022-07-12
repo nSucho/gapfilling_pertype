@@ -59,7 +59,6 @@ def process_files(files, datatype, val_col, header, year):
                     for country in countries:
                         readin_gap_finder.check_for_gaps(file_df, atcode, country, technology, month, year, val_col,
                                                          header, datatype)
-            # TODO: need of double loop?
             # unify for every combination the year to fill the gaps afterwards
             for atcode in atcodes:
                 for technology in technologies:
@@ -72,7 +71,6 @@ def process_files(files, datatype, val_col, header, year):
                 for country in countries:
                     readin_gap_finder.check_for_gaps(file_df, atcode, country, 'none', month, year, val_col, header,
                                                      datatype)
-            # TODO: need of double loop?
             # unify for every combination the year to fill the gaps afterwards
             for atcode in atcodes:
                 for country in countries:
