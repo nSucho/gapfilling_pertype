@@ -15,7 +15,6 @@ import readin_aux # only for the time calculation
 import os
 
 
-# add filling for TOTALLOAD
 def gapfill_main():
     """
 
@@ -40,9 +39,9 @@ def gapfill_main():
     tech = 'Biomass'
     # if 'create_gaps = True' there will be random gaps inserted into the data
     # if 'duplicate_gaps = True' the gaps from different file will be inserted into the data
-    # one of both should be false
-    create_gaps = False
-    duplicate_gaps = True
+    # one of both should be 'False'!
+    create_gaps = True
+    duplicate_gaps = False
     # country which the gaps should be duplicated from
     code_wgaps = 'BA'
     atc_gaps = 'BZN'
@@ -90,21 +89,16 @@ def gapfill_main():
     # ----------
     # Kalman-filter to fill gaps and calculate the validation values
     # ----------
-    # TODO: added fast
-    kalman_struct, kalman_arima, kalman_arima_fast = filling_kalman.kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col,
+    kalman_struct, kalman_arima = filling_kalman.kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col,
                                                                header)
     # TODO: kick out again
     # for testing read in files instead of fill
     #kalman_struct, kalman_arima = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'kalman', 'structts',
     #                                                          'arima')
     # create an array to calculate the validation
-    # TODO: added fast
-    kalman_fast_series = np.array(kalman_arima_fast[val_col])
     kalman_struct_series = np.array(kalman_struct[val_col])
     kalman_arima_series = np.array(kalman_arima[val_col])
     # validate the gap_filling
-    # TODO: added fast
-    kalman_fast_vali = gap_filling_aux.validation(original_series, kalman_fast_series)
     kalman_struct_vali = gap_filling_aux.validation(original_series, kalman_struct_series)
     kalman_arima_vali = gap_filling_aux.validation(original_series, kalman_arima_series)
 
@@ -125,8 +119,6 @@ def gapfill_main():
     print('Average week, linear average week: ', avg_week_vali, lin_avg_week_vali)
     print('FEDOT forward, bidirect: ', fedot_fwrd_vali, fedot_bi_vali)
     print('Kalman structTS, arima: ', kalman_struct_vali, kalman_arima_vali)
-    # TODO: added fast
-    print('Kalman fast, slow: ', kalman_fast_vali, kalman_arima_vali)
 
     # stop time to check how long program was running
     end_time = time.time()
