@@ -12,8 +12,7 @@ from fedot.core.pipelines.node import PrimaryNode, SecondaryNode
 from fedot.utilities.ts_gapfilling import ModelGapFiller
 
 
-# TODO: is there a better way?
-#   can still not handle gaps in first 7 segments
+# can still not handle gaps in first 7 segments
 def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header):
     """
 
@@ -40,6 +39,7 @@ def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, heade
     df_w_nan_copy = data_w_nan.copy()
 
     # fill the nan with '-100' so fedot can work with it
+    # TODO: geht auch nan?
     df_w_nan_copy = df_w_nan_copy.fillna(-100)
 
     # Got univariate time series as numpy array
@@ -53,7 +53,6 @@ def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, heade
     # ----------
     # Filling in the gaps
     # ----------
-    # TODO: filled with minus
     without_gap_forward = model_gapfiller.forward_filling(time_series)
     without_gap_bidirect = model_gapfiller.forward_inverse_filling(time_series)
 

@@ -71,14 +71,15 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
                 "Kalman arima"])
     plt.title('Country: ' + country + ', Technology: ' + tech + ', Year: ' + year)
     plt.tight_layout()
-    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + 'differences.png', bbox_inches='tight')
+    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + 'differences.png',
+                bbox_inches='tight')
     #plt.show()
     plt.close()
 
     # ----------
     # plot the standardizing
     # ----------
-    # TODO: why is this good?
+    # TODO: why standardize
     plt.plot(original['DateTime'], stand_avg_week, color='#377eb8', label='Actual values in the gaps')
     plt.plot(original['DateTime'], stand_lin_avg_week, color='#ff7f00', label='Local polynomial')
     plt.plot(original['DateTime'], stand_fedot_fwrd, color='#999999', label='Actual values in the gaps')
