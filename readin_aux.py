@@ -59,22 +59,25 @@ def process_files(files, datatype, val_col, header, year):
                     for country in countries:
                         readin_gap_finder.check_for_gaps(file_df, atcode, country, technology, month, year, val_col,
                                                          header, datatype)
-            # unify for every combination the year to fill the gaps afterwards
-            for atcode in atcodes:
-                for technology in technologies:
-                    for country in countries:
-                        readin_to_year.unify_year(year, country, atcode, technology, datatype, val_col, header)
         # ActTotLoad
         elif datatype == 'totalload':
             # find all gaps for each technology per country
             for atcode in atcodes:
                 for country in countries:
-                    readin_gap_finder.check_for_gaps(file_df, atcode, country, 'none', month, year, val_col, header,
+                    readin_gap_finder.check_for_gaps(file_df, atcode, country, 'noTech', month, year, val_col, header,
                                                      datatype)
-            # unify for every combination the year to fill the gaps afterwards
-            for atcode in atcodes:
+    # unify for every combination the year to fill the gaps afterwards
+    # ActGenPerType
+    if datatype == 'agpt':
+        for atcode in atcodes:
+            for technology in technologies:
                 for country in countries:
-                    readin_to_year.unify_year(year, country, atcode, 'none', datatype, val_col, header)
+                    readin_to_year.unify_year(year, country, atcode, technology, datatype, val_col, header)
+    # ActTotLoad
+    elif datatype == 'totalload':
+        for atcode in atcodes:
+            for country in countries:
+                readin_to_year.unify_year(year, country, atcode, 'noTech', datatype, val_col, header)
 
 
 def list_countries(file_df):

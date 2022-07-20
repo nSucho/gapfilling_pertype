@@ -113,7 +113,7 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
         # else:
         # print("last of the month is in list")
 
-        # print the auxiliary-dataframe into a csv
+        # save the auxiliary-dataframe into a csv
         act_data_df.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/rawdata_sorted/' + str(month) +
                            '_' + areatypecode + '_' + technology + '.csv', sep='\t', encoding='utf-8', index=False,
                            header=header)
