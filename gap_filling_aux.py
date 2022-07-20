@@ -112,7 +112,6 @@ def validation(original, filled_gaps):
     return validation
 
 
-# TODO: kick out later?
 def readin_test(datatype, year, country, atc, tech, name, method1, method2):
     # read in the file
     file_one = pd.read_csv('data/' + datatype + '/' + str(year) + '/' + country + '/' + name + '/' + atc + '_' + tech +

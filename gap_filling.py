@@ -74,11 +74,10 @@ def gapfill_main():
     # ----------
     # fedot-methods to fill the gaps and calculate the validation values
     # ----------
-    #fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header)
-    # TODO: kick out again
+    fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header)
     # for testing read in files instead of fill
-    fedot_fwrd, fedot_bi = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'fedot', 'forward',
-                                                       'bidirect')
+    #fedot_fwrd, fedot_bi = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'fedot', 'forward',
+    #                                                   'bidirect')
     # create an array to calculate the validation
     fedot_fwrd_series = np.array(fedot_fwrd[val_col])
     fedot_bi_series = np.array(fedot_bi[val_col])
@@ -91,7 +90,6 @@ def gapfill_main():
     # ----------
     kalman_struct, kalman_arima = filling_kalman.kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col,
                                                                header)
-    # TODO: kick out again
     # for testing read in files instead of fill
     #kalman_struct, kalman_arima = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'kalman', 'structts',
     #                                                          'arima')
