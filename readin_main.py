@@ -25,7 +25,7 @@ def readin_data():
     # ----------
     year = '2021'
     # options for datatype => 'agpt' (ActGenPerType) or 'totalload'(ActTotLoad)
-    datatype = 'agpt'
+    datatype = 'totalload'
 
     # reset the countries_w_gaps.csv, to fill with new countries, which have gaps, later
     with open("countries_w_gaps.csv", "w") as csvfile:

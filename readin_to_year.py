@@ -100,7 +100,7 @@ def analyze_gap_length(check_df, year, country, areatypecode, technology, dataty
     # get the gap-length as own column
     consecutive_gaps.reset_index(inplace=True)
 
-    calc_missing_data(check_df, year, country, areatypecode, technology, val_col)
+    calc_missing_data(check_df, year, country, areatypecode, technology, val_col, datatype)
 
     consecutive_gaps.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/' + str(year) + '_' +
                             areatypecode + '_' + technology + '_gaps_length.csv', sep='\t', encoding='utf-8',
@@ -118,7 +118,7 @@ def consecutive_nans(ds):
     return ds.isnull().astype(int).groupby(ds.notnull().astype(int).cumsum()).sum()
 
 
-def calc_missing_data(df_to_check, year, country, areatypecode, technology, val_col):
+def calc_missing_data(df_to_check, year, country, areatypecode, technology, val_col, datatype):
     """
 
     :param df_to_check:
@@ -146,7 +146,7 @@ def calc_missing_data(df_to_check, year, country, areatypecode, technology, val_
                 'MissingPercentage': missing_percent}
 
     # save the country in the csv of countries with gaps
-    with open("countries_w_gaps.csv", "a") as csvfile:
+    with open("countries_w_gaps_"+datatype+"_"+year+".csv", "a") as csvfile:
         # create a dict_writer object with the needed attributes
         dictwriter_object = csv.DictWriter(csvfile, delimiter='\t', fieldnames=field_names)
         # write the dict into the csv
