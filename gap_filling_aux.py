@@ -11,7 +11,8 @@ import glob
 np.random.seed(10)
 
 
-def read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps, code_country_wgaps, atc_gaps, val_col):
+def read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps, code_country_wgaps, atc_gaps, val_col,
+            amount_gaps):
     """
 
     :param datatype:
@@ -34,6 +35,8 @@ def read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps, cod
     :type atc_gaps:
     :param val_col:
     :type val_col:
+    :param amount_gaps:
+    :type amount_gaps:
     :return:
     :rtype:
     """
@@ -43,7 +46,7 @@ def read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps, cod
     # set 'DateTime' as datetime-type
     original['DateTime'] = pd.to_datetime(original['DateTime'])
     if create_gaps:
-        data_w_nan = insert_gaps(original, val_col)
+        data_w_nan = insert_gaps(original, val_col, amount_gaps)
     if duplicate_gaps:
         country_wgaps = pd.read_csv('data/' + datatype + '/' + str(year) + '/' + code_country_wgaps + '/' + str(year) +
                                     '_' + atc_gaps + '_' + tech + '.csv', sep='\t', encoding='utf-8')
@@ -51,13 +54,15 @@ def read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps, cod
     return original, data_w_nan
 
 
-def insert_gaps(original, val_col):
+def insert_gaps(original, val_col, amount_gaps):
     """
     inserts gaps into the dataframe on a random basis
     :param original:
     :type original:
     :param val_col:
     :type val_col:
+    :param amount_gaps:
+    :type amount_gaps:
     :return:
     :rtype:
     """
@@ -68,7 +73,7 @@ def insert_gaps(original, val_col):
     # frac = 0.1 means 10% of the data will be gaps
     for col in original_copy.columns:
         if col == val_col:
-            original_copy.loc[original_copy.sample(frac=0.1).index, col] = np.nan
+            original_copy.loc[original_copy.sample(frac=amount_gaps).index, col] = np.nan
     return original_copy
 
 

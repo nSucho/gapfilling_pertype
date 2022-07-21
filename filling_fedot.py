@@ -13,7 +13,7 @@ from fedot.utilities.ts_gapfilling import ModelGapFiller
 
 
 # can still not handle gaps in first 7 segments
-def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header):
+def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header, fedot_window):
     """
 
     :param data_w_nan:
@@ -32,6 +32,8 @@ def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, heade
     :type val_col:
     :param header:
     :type header:
+    :param fedot_window:
+    :type fedot_window:
     :return:
     :rtype:
     """
@@ -39,14 +41,13 @@ def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, heade
     df_w_nan_copy = data_w_nan.copy()
 
     # fill the nan with '-100' so fedot can work with it
-    # TODO: geht auch nan?
     df_w_nan_copy = df_w_nan_copy.fillna(-100)
 
     # Got univariate time series as numpy array
     time_series = np.array(df_w_nan_copy[val_col])
 
     # create a pipeline and defines the values which count as gaps
-    pipeline = get_simple_ridge_pipeline()
+    pipeline = get_simple_ridge_pipeline(fedot_window)
     model_gapfiller = ModelGapFiller(gap_value=-100.0,
                                      pipeline=pipeline)
 
@@ -77,14 +78,16 @@ def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, heade
     return df_forward, df_bidirect
 
 
-def get_simple_ridge_pipeline():
+def get_simple_ridge_pipeline(fedot_window):
     """
 
+    :param fedot_window: size of the sliding window
+    :type fedot_window:
     :return:
     :rtype:
     """
     node_lagged = PrimaryNode('lagged')
-    node_lagged.custom_params = {'window_size': 200}
+    node_lagged.custom_params = {'window_size': fedot_window}
 
     node_final = SecondaryNode('ridge', nodes_from=[node_lagged])
     pipeline = Pipeline(node_final)
