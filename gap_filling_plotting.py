@@ -75,8 +75,9 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
                 "Kalman arima"])
     plt.title('Country: ' + country + ', Technology: ' + tech + ', Year: ' + year)
     plt.tight_layout()
-    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + amount_gaps + '_' + fedot_window
-                + '_' + 'differences.png', bbox_inches='tight')
+    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + str(amount_gaps) + '_' +
+                str(fedot_window) + '_' + 'difference.png', bbox_inches='tight')
+
     #plt.show()
     plt.close()
 
@@ -98,8 +99,8 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
                 "Kalman arima"])
     plt.title('Country: ' + country + ', Technology: ' + tech + ', Year: ' + year)
     plt.tight_layout()
-    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + amount_gaps + '_' + fedot_window
-                + '_' + 'stand.png', bbox_inches='tight')
+    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + str(amount_gaps) + '_' +
+                str(fedot_window) + '_' + 'stand.png', bbox_inches='tight')
     #plt.show()
     plt.close()
 
@@ -160,8 +161,8 @@ def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct,
     add_bar_label(bar_plot, 2)
     # fits the boundaries of the plot, so nothing gets cut off
     plt.tight_layout()
-    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + amount_gaps + '_' + fedot_window
-                + '_' + 'mae.png', bbox_inches='tight')
+    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + str(amount_gaps) + '_' +
+                str(fedot_window) + '_' + 'mae.png', bbox_inches='tight')
     # plt.show()
     plt.close()
 
@@ -177,8 +178,8 @@ def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct,
     add_bar_label(bar_plot, 2)
     # fits the boundaries of the plot, so nothing gets cut off
     plt.tight_layout()
-    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + amount_gaps + '_' + fedot_window
-                + '_' + 'rmse.png', bbox_inches='tight')
+    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + str(amount_gaps) + '_' +
+                str(fedot_window) + '_' + 'rmse.png', bbox_inches='tight')
     # plt.show()
     plt.close()
 
@@ -194,8 +195,8 @@ def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct,
     add_bar_label(bar_plot, 4)
     # fits the boundaries of the plot, so nothing gets cut off
     plt.tight_layout()
-    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + amount_gaps + '_' + fedot_window
-                + '_' + 'r2.png', bbox_inches='tight')
+    plt.savefig('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + str(amount_gaps) + '_' +
+                str(fedot_window) + '_' + 'r2.png', bbox_inches='tight')
     #plt.show()
     plt.close()
 

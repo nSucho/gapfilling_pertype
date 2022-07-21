@@ -77,11 +77,11 @@ def gapfill_main():
     # ----------
     # fedot-methods to fill the gaps and calculate the validation values
     # ----------
-    fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header,
-                                                       fedot_window)
+    #fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header,
+    #                                                   fedot_window)
     # for testing read in files instead of fill
-    # fedot_fwrd, fedot_bi = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'fedot', 'forward',
-    #                                                   'bidirect')
+    fedot_fwrd, fedot_bi = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'fedot', 'forward',
+                                                       'bidirect')
     # create an array to calculate the validation
     fedot_fwrd_series = np.array(fedot_fwrd[val_col])
     fedot_bi_series = np.array(fedot_bi[val_col])
@@ -119,10 +119,40 @@ def gapfill_main():
                                       kalman_arima, avg_week, lin_avg_week, val_col, datatype, year, country, tech,
                                       fedot_window, amount_gaps)
 
-    # print the values for testing
-    print('Average week, linear average week: ', avg_week_vali, lin_avg_week_vali)
-    print('FEDOT forward, bidirect: ', fedot_fwrd_vali, fedot_bi_vali)
-    print('Kalman structTS, arima: ', kalman_struct_vali, kalman_arima_vali)
+    # save the values for evaluation
+    with open('plots/' + datatype + '/' + year + '/' + country + '_' + tech + '_' + str(amount_gaps) + '_' +
+              str(fedot_window) + '_' + 'results.txt', 'w') as file_object:
+        file_object.write('Average week, linear average week: (MAE, SMAE, R\u00b2) ')
+        file_object.write("\n")
+        for listitem in avg_week_vali:
+            file_object.write(str(listitem) + ', ')
+        file_object.write("\n")
+        for listitem in lin_avg_week_vali:
+            file_object.write(str(listitem) + ', ')
+        file_object.write("\n")
+        file_object.write("\n")
+        file_object.write('FEDOT forward, bidirect: (MAE, SMAE, R\u00b2) ')
+        file_object.write("\n")
+        for listitem in fedot_fwrd_vali:
+            file_object.write(str(listitem) + ', ')
+        file_object.write("\n")
+        for listitem in fedot_bi_vali:
+            file_object.write(str(listitem) + ', ')
+        file_object.write("\n")
+        file_object.write("\n")
+        file_object.write('Kalman structTS, arima: (MAE, SMAE, R\u00b2) ')
+        file_object.write("\n")
+        for listitem in kalman_struct_vali:
+            file_object.write(str(listitem) + ', ')
+        file_object.write("\n")
+        for listitem in kalman_arima_vali:
+            file_object.write(str(listitem) + ', ')
+        file_object.write("\n")
+        file_object.write("\n")
+
+    #print('Average week, linear average week: ', avg_week_vali, lin_avg_week_vali)
+    #print('FEDOT forward, bidirect: ', fedot_fwrd_vali, fedot_bi_vali)
+    #print('Kalman structTS, arima: ', kalman_struct_vali, kalman_arima_vali)
 
     # stop time to check how long program was running
     end_time = time.time()
