@@ -7,8 +7,8 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import numpy as np
 import pandas as pd
 import glob
-# seed 10 is working with agpt and totalload
-np.random.seed(10)
+# seed 10 is working with agpt and totalload; only for gap_size 5 and 10
+np.random.seed(120)
 
 
 def read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps, code_country_wgaps, atc_gaps, val_col,

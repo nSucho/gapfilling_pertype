@@ -15,7 +15,7 @@ import readin_aux  # only for the time calculation
 import os
 
 
-def gapfill_main():
+def gapfill_main(fedot_window, amount_gaps):
     """
 
     :return:
@@ -43,8 +43,8 @@ def gapfill_main():
     code_wgaps = 'BA'
     atc_gaps = 'BZN'
     # set the size of the sliding window for FEDOT and the amount of gaps which should be inserted in 'create_gaps'
-    fedot_window = 250
-    amount_gaps = 0.05  # 0.1 = 10% of the available data should be gaps
+    #fedot_window = 100
+    #amount_gaps = 0.15  # 0.1 = 10% of the available data should be gaps
     # check the datatype and set the header accordingly
     if datatype == 'agpt':
         val_col = 'ActualGenerationOutput'
@@ -80,8 +80,12 @@ def gapfill_main():
     #fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header,
     #                                                   fedot_window)
     # for testing read in files instead of fill
-    fedot_fwrd, fedot_bi = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'fedot', 'forward',
-                                                       'bidirect')
+    # TODO: changed fedot
+    #fedot_fwrd, fedot_bi = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'fedot', 'forward',
+    #                                                   'bidirect')
+    fedot_fwrd = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header,
+                                             fedot_window)
+    fedot_bi = original_series
     # create an array to calculate the validation
     fedot_fwrd_series = np.array(fedot_fwrd[val_col])
     fedot_bi_series = np.array(fedot_bi[val_col])
@@ -125,28 +129,28 @@ def gapfill_main():
         file_object.write('Average week, linear average week: (MAE, SMAE, R\u00b2) ')
         file_object.write("\n")
         for listitem in avg_week_vali:
-            file_object.write(str(listitem) + ', ')
+            file_object.write(str(round(listitem, 4)) + ', ')
         file_object.write("\n")
         for listitem in lin_avg_week_vali:
-            file_object.write(str(listitem) + ', ')
+            file_object.write(str(round(listitem, 4)) + ', ')
         file_object.write("\n")
         file_object.write("\n")
         file_object.write('FEDOT forward, bidirect: (MAE, SMAE, R\u00b2) ')
         file_object.write("\n")
         for listitem in fedot_fwrd_vali:
-            file_object.write(str(listitem) + ', ')
+            file_object.write(str(round(listitem, 4)) + ', ')
         file_object.write("\n")
         for listitem in fedot_bi_vali:
-            file_object.write(str(listitem) + ', ')
+            file_object.write(str(round(listitem, 4)) + ', ')
         file_object.write("\n")
         file_object.write("\n")
         file_object.write('Kalman structTS, arima: (MAE, SMAE, R\u00b2) ')
         file_object.write("\n")
         for listitem in kalman_struct_vali:
-            file_object.write(str(listitem) + ', ')
+            file_object.write(str(round(listitem, 4)) + ', ')
         file_object.write("\n")
         for listitem in kalman_arima_vali:
-            file_object.write(str(listitem) + ', ')
+            file_object.write(str(round(listitem, 4)) + ', ')
         file_object.write("\n")
         file_object.write("\n")
 
@@ -161,4 +165,8 @@ def gapfill_main():
 
 
 if __name__ == '__main__':
-    gapfill_main()
+    windows = [100, 150, 200, 250]
+    gaps = [0.15, 0.25]
+    for gap in gaps:
+        for window in windows:
+            gapfill_main(window, gap)
