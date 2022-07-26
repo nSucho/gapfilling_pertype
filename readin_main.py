@@ -28,7 +28,7 @@ def readin_data():
     datatype = 'totalload'
 
     # reset the countries_w_gaps.csv, to fill with new countries, which have gaps, later
-    with open("countries_w_gaps.csv", "w") as csvfile:
+    with open("countries_w_gaps_"+datatype+"_"+year+".csv", "w") as csvfile:
         # create a writer object with the needed attributes
         writer_obj = writer(csvfile, delimiter='\t')
         # write the header into the csv

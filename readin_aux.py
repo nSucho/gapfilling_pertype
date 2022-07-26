@@ -28,6 +28,22 @@ def process_files(files, datatype, val_col, header, year):
     :return:
     :rtype:
     """
+    countries = set()
+    atcodes = set()
+    technologies = set()
+    for file in files:
+        # get all countries, areatypecodes and technologies
+        file_df = pd.read_csv(file, sep='\t', encoding='utf-8')
+        countries.update(list_countries(file_df))
+        atcodes.update(list_areatypecode(file_df))
+        if datatype == 'agpt':
+            technologies.update(list_technologies(file_df))
+    # convert all to a dataframe and save them as files
+    pd.DataFrame(countries).to_csv('country_list.csv', sep='\t', encoding='utf-8', index=False, header=['Countries'])
+    pd.DataFrame(atcodes).to_csv('areatypecode_list.csv', sep='\t', encoding='utf-8', index=False, header=['AreaTypeCodes'])
+    if datatype == 'agpt':
+        pd.DataFrame(technologies).to_csv('technology_list.csv', sep='\t', encoding='utf-8', index=False, header=['Technologies'])
+
     for file in files:
         # get the string of the month from the file-names
         df_path = pathlib.PurePath(file).parts[4]
@@ -42,18 +58,11 @@ def process_files(files, datatype, val_col, header, year):
         # drop unnecessary columns
         file_df = file_df.loc[:, header]
 
-        # create list for all countries and save the list
-        countries = list_countries(file_df)
-        # create list for all AreaTypeCodes and save the list
-        atcodes = list_areatypecode(file_df)
-
         # ----------
         # find all gaps for each technology per country
         # ----------
         # ActGenPerType
         if datatype == 'agpt':
-            # create list for all technologies and save the list
-            technologies = list_technologies(file_df)
             for atcode in atcodes:
                 for technology in technologies:
                     for country in countries:
@@ -93,10 +102,6 @@ def list_countries(file_df):
     country_list = list(file_copy['MapCode'].drop_duplicates())
     country_list.sort()
 
-    # create df from list to save as csv
-    country_df = pd.DataFrame(country_list)
-    country_df.to_csv('country_list.csv', sep='\t', encoding='utf-8', index=False, header=['Countries'])
-
     return country_list
 
 
@@ -112,10 +117,6 @@ def list_areatypecode(file_df):
     # take only the technologies of the country and drop the duplicates
     areatypecode_list = list(file_copy['AreaTypeCode'].drop_duplicates())
     areatypecode_list.sort()
-
-    # create df from list to save as csv
-    atc_df = pd.DataFrame(areatypecode_list)
-    atc_df.to_csv('areatypecode_list.csv', sep='\t', encoding='utf-8', index=False, header=['AreaTypeCodes'])
 
     return areatypecode_list
 
@@ -135,10 +136,6 @@ def list_technologies(file_df):
     # replace the '/' because else throws error
     tech_list = list(map(lambda x: x.replace('Fossil Brown coal/Lignite', 'Fossil Brown coal Lignite'), tech_list))
     tech_list.sort()
-
-    # create df from list to save as csv
-    tech_df = pd.DataFrame(tech_list)
-    tech_df.to_csv('technology_list.csv', sep='\t', encoding='utf-8', index=False, header=['Technologies'])
 
     return tech_list
 
