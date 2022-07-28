@@ -54,6 +54,8 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
         if datatype == 'agpt':
             act_data_df = file_df.loc[(file_df["MapCode"] == country) & (file_df["ProductionType"] == technology) &
                                       (file_df["AreaTypeCode"] == areatypecode)]
+            if technology == 'Fossil Brown coal/Lignite':
+                technology = 'Fossil Brown coal Lignite'
         elif datatype == 'totalload':
             act_data_df = file_df.loc[(file_df["MapCode"] == country) & (file_df["AreaTypeCode"] == areatypecode)]
 

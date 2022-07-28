@@ -55,7 +55,7 @@ def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, heade
     # Filling in the gaps
     # ----------
     without_gap_forward = model_gapfiller.forward_filling(time_series)
-    without_gap_bidirect = model_gapfiller.forward_inverse_filling(time_series)
+    #without_gap_bidirect = model_gapfiller.forward_inverse_filling(time_series)
 
     # first check if folder exists to save data in
     isExist = os.path.exists('data/' + datatype + '/' + str(year) + '/' + country + '/fedot')

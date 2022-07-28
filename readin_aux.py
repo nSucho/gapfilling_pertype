@@ -70,7 +70,6 @@ def process_files(files, datatype, val_col, header, year):
                                                          header, datatype)
         # ActTotLoad
         elif datatype == 'totalload':
-            # find all gaps for each technology per country
             for atcode in atcodes:
                 for country in countries:
                     readin_gap_finder.check_for_gaps(file_df, atcode, country, 'noTech', month, year, val_col, header,
@@ -80,6 +79,8 @@ def process_files(files, datatype, val_col, header, year):
     if datatype == 'agpt':
         for atcode in atcodes:
             for technology in technologies:
+                if technology == 'Fossil Brown coal/Lignite':
+                    technology = 'Fossil Brown coal Lignite'
                 for country in countries:
                     readin_to_year.unify_year(year, country, atcode, technology, datatype, val_col, header)
     # ActTotLoad
@@ -134,7 +135,7 @@ def list_technologies(file_df):
     tech_list = file_copy['ProductionType'].drop_duplicates()
 
     # replace the '/' because else throws error
-    tech_list = list(map(lambda x: x.replace('Fossil Brown coal/Lignite', 'Fossil Brown coal Lignite'), tech_list))
+    tech_list = list(map(lambda x: x.replace('Fossil Brown coal/Lignite', r'Fossil Brown coal/Lignite'), tech_list))
     tech_list.sort()
 
     return tech_list

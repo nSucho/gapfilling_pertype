@@ -40,8 +40,8 @@ def gapfill_main(fedot_window, amount_gaps):
     create_gaps = True
     duplicate_gaps = False
     # country which the gaps should be duplicated from
-    code_wgaps = 'BA'
-    atc_gaps = 'BZN'
+    code_wgaps = 'LU'
+    atc_gaps = 'CTY'
     # set the size of the sliding window for FEDOT and the amount of gaps which should be inserted in 'create_gaps'
     #fedot_window = 100
     #amount_gaps = 0.15  # 0.1 = 10% of the available data should be gaps
@@ -51,7 +51,7 @@ def gapfill_main(fedot_window, amount_gaps):
         header = ['DateTime', 'ActualGenerationOutput']
     elif datatype == 'totalload':
         # change tech to 'none' because the tables don't have a technology
-        tech = 'none'
+        tech = 'noTech'
         val_col = 'TotalLoadValue'
         header = ['DateTime', 'TotalLoadValue']
 
@@ -79,13 +79,13 @@ def gapfill_main(fedot_window, amount_gaps):
     # ----------
     #fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header,
     #                                                   fedot_window)
-    # for testing read in files instead of fill
     # TODO: changed fedot
-    #fedot_fwrd, fedot_bi = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'fedot', 'forward',
-    #                                                   'bidirect')
+    fedot_bi = original
     fedot_fwrd = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header,
                                              fedot_window)
-    fedot_bi = original_series
+    # for testing read in files instead of fill
+    #fedot_fwrd = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'fedot', 'forward',
+    #                                                   'bidirect')
     # create an array to calculate the validation
     fedot_fwrd_series = np.array(fedot_fwrd[val_col])
     fedot_bi_series = np.array(fedot_bi[val_col])
@@ -165,8 +165,9 @@ def gapfill_main(fedot_window, amount_gaps):
 
 
 if __name__ == '__main__':
-    windows = [100, 150, 200, 250]
-    gaps = [0.15, 0.25]
+    windows = [200, 250]
+    gaps = [0.15]
     for gap in gaps:
         for window in windows:
             gapfill_main(window, gap)
+
