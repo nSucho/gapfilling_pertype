@@ -143,7 +143,7 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
         gap_df = pd.DataFrame(gap_list)
         # check if the gap-df is empty
         if not gap_df.empty:
-            # if we the datatype is not '' we can drop the technology column
+            # if the datatype is not '' we can drop the technology column
             if not datatype == 'agpt':
                 gap_df = gap_df.drop(gap_df.columns[3], axis=1)
             gap_df.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/gaplists/' + str(month) + '_' +

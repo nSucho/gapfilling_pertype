@@ -55,7 +55,7 @@ def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, heade
     # Filling in the gaps
     # ----------
     without_gap_forward = model_gapfiller.forward_filling(time_series)
-    #without_gap_bidirect = model_gapfiller.forward_inverse_filling(time_series)
+    without_gap_bidirect = model_gapfiller.forward_inverse_filling(time_series)
 
     # first check if folder exists to save data in
     isExist = os.path.exists('data/' + datatype + '/' + str(year) + '/' + country + '/fedot')
@@ -64,19 +64,19 @@ def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, heade
 
     # combine filled values with date and time again
     df_forward = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_forward)], axis=1)
-    #df_bidirect = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_bidirect)], axis=1)
+    df_bidirect = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_bidirect)], axis=1)
     # set header
     df_forward.columns = header
-    #df_bidirect.columns = header
+    df_bidirect.columns = header
 
     # save the combined df as csv
     pd.DataFrame(df_forward).to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/fedot/' + atc + '_' + tech
                                     + '_filled_forward.csv', sep='\t', encoding='utf-8', index=False, header=header)
-    #pd.DataFrame(df_bidirect).to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/fedot/' + atc + '_' + tech
-    #                                 + '_filled_bidirect.csv', sep='\t', encoding='utf-8', index=False, header=header)
+    pd.DataFrame(df_bidirect).to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/fedot/' + atc + '_' + tech
+                                     + '_filled_bidirect.csv', sep='\t', encoding='utf-8', index=False, header=header)
 
-    #return df_forward, df_bidirect
-    return df_forward
+    return df_forward, df_bidirect
+    #return df_forward
 
 
 def get_simple_ridge_pipeline(fedot_window):

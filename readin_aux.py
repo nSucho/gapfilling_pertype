@@ -7,9 +7,12 @@ couple of auxiliary functions for read_in.py
 """
 import os
 import pandas as pd
+import numpy as np
 import pathlib
 import readin_gap_finder
 import readin_to_year
+import calendar
+import glob
 
 
 def process_files(files, datatype, val_col, header, year):
@@ -32,7 +35,7 @@ def process_files(files, datatype, val_col, header, year):
     atcodes = set()
     technologies = set()
     for file in files:
-        # get all countries, areatypecodes and technologies
+        # get all countries, areatypecodes and technologies into a set
         file_df = pd.read_csv(file, sep='\t', encoding='utf-8')
         countries.update(list_countries(file_df))
         atcodes.update(list_areatypecode(file_df))
@@ -40,9 +43,11 @@ def process_files(files, datatype, val_col, header, year):
             technologies.update(list_technologies(file_df))
     # convert all to a dataframe and save them as files
     pd.DataFrame(countries).to_csv('country_list.csv', sep='\t', encoding='utf-8', index=False, header=['Countries'])
-    pd.DataFrame(atcodes).to_csv('areatypecode_list.csv', sep='\t', encoding='utf-8', index=False, header=['AreaTypeCodes'])
+    pd.DataFrame(atcodes).to_csv('areatypecode_list.csv', sep='\t', encoding='utf-8', index=False,
+                                 header=['AreaTypeCodes'])
     if datatype == 'agpt':
-        pd.DataFrame(technologies).to_csv('technology_list.csv', sep='\t', encoding='utf-8', index=False, header=['Technologies'])
+        pd.DataFrame(technologies).to_csv('technology_list.csv', sep='\t', encoding='utf-8', index=False,
+                                          header=['Technologies'])
 
     for file in files:
         # get the string of the month from the file-names
@@ -74,6 +79,65 @@ def process_files(files, datatype, val_col, header, year):
                 for country in countries:
                     readin_gap_finder.check_for_gaps(file_df, atcode, country, 'noTech', month, year, val_col, header,
                                                      datatype)
+
+    # check if no monthly files are missing, else create
+    if datatype == 'agpt':
+        for atcode in atcodes:
+            for technology in technologies:
+                for country in countries:
+                    # check if there is a file in the folder which fits the atc and country
+                    check_files = glob.glob(
+                        'data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted/??_' + atcode + '_' +
+                        technology + '_?*', recursive=False)
+                    if check_files:
+                        # check if any of the months are missing
+                        month_list = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+                        for month in month_list:
+                            check_file = glob.glob('data/' + datatype + '/' + str(year) + '/' + country +
+                                                   '/final_sorted/' + month + '_' + atcode + '_' + technology + '_?*')
+                            if not check_file:
+                                # if a month is missing, create it
+                                last_day_of_month = calendar.monthrange(int(year), int(month))[1]
+                                # create the range of the month
+                                rng = pd.date_range(start=year + '-' + month + '-01 00:00:00',
+                                                    end=year + '-' + month + '-' + str(last_day_of_month) + ' 23:00:00',
+                                                    freq='H', inclusive='both')
+                                # create the dataframe
+                                df = pd.DataFrame({'DateTime': rng, 'AreaTypeCode': atcode, 'MapCode': country,
+                                                   'TotalLoadvalue': np.nan})
+                                # save the dataframe
+                                df.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted/' +
+                                          str(month) + '_' + atcode + '_' + technology + '_wgaps.csv', sep='\t',
+                                          encoding='utf-8', index=False, header=header)
+    # ActTotLoad
+    elif datatype == 'totalload':
+        for atcode in atcodes:
+            for country in countries:
+                # check if there is a file in the folder which fits the atc and country
+                check_files = glob.glob(
+                    'data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted/??_' + atcode + '_' +
+                    'noTech' + '_?*', recursive=False)
+                if check_files:
+                    # check if any of the months are missing
+                    month_list = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+                    for month in month_list:
+                        check_file = glob.glob('data/' + datatype + '/' + str(year) + '/' + country +
+                                  '/final_sorted/' + month + '_' + atcode + '_' + 'noTech' + '_?*')
+                        if not check_file:
+                            # if a month is missing, create it
+                            last_day_of_month = calendar.monthrange(int(year), int(month))[1]
+                            # create the range of the month
+                            rng = pd.date_range(start=year+'-'+month+'-01 00:00:00',
+                                                end=year+'-'+month+'-'+str(last_day_of_month)+' 23:00:00',
+                                                freq='H', inclusive='both')
+                            # create the dataframe
+                            df = pd.DataFrame({'DateTime': rng, 'AreaTypeCode': atcode, 'MapCode': country,
+                                               'TotalLoadvalue': np.nan})
+                            # save the dataframe
+                            df.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted/' +
+                                      str(month) + '_' + atcode + '_' + 'noTech' + '_wgaps.csv', sep='\t',
+                                      encoding='utf-8', index=False, header=header)
+
     # unify for every combination the year to fill the gaps afterwards
     # ActGenPerType
     if datatype == 'agpt':
