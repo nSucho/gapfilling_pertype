@@ -11,32 +11,32 @@ import glob
 np.random.seed(10)
 
 
-def read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps, code_country_wgaps, atc_gaps, val_col,
-            amount_gaps):
+def read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps, copy_code, copy_atc, copy_tech,
+            val_col, amount_gaps):
     """
-
-    :param datatype:
-    :type datatype:
-    :param year:
-    :type year:
-    :param atc:
-    :type atc:
-    :param country:
-    :type country:
-    :param tech:
-    :type tech:
-    :param create_gaps:
-    :type create_gaps:
-    :param duplicate_gaps:
-    :type duplicate_gaps:
-    :param code_country_wgaps:
-    :type code_country_wgaps:
-    :param atc_gaps:
-    :type atc_gaps:
-    :param val_col:
-    :type val_col:
-    :param amount_gaps:
-    :type amount_gaps:
+    reads in the files needed for gap filling
+    :param datatype: type of the data
+    :type datatype: string
+    :param year: year of the gapless file
+    :type year: string
+    :param atc: area type code of the gapless file
+    :type atc: string
+    :param country: country code of the gapless file
+    :type country: string
+    :param tech: technology of the gapless file
+    :type tech: string
+    :param create_gaps: if true creates artifical gaps
+    :type create_gaps: boolean
+    :param duplicate_gaps: if true creates duplicated gaps
+    :type duplicate_gaps: boolean
+    :param copy_code: country code of the country with gaps
+    :type copy_code: string
+    :param copy_atc: area type code of the country with gaps
+    :type copy_atc: string
+    :param val_col: header of the column which contains the important values
+    :type val_col: string
+    :param amount_gaps: the amount of gaps inserted artificially into the country wihtout gaps
+    :type amount_gaps: float
     :return:
     :rtype:
     """
@@ -48,8 +48,8 @@ def read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps, cod
     if create_gaps:
         data_w_nan = insert_gaps(original, val_col, amount_gaps)
     if duplicate_gaps:
-        country_wgaps = pd.read_csv('data/' + datatype + '/' + str(year) + '/' + code_country_wgaps + '/' + str(year) +
-                                    '_' + atc_gaps + '_' + tech + '.csv', sep='\t', encoding='utf-8')
+        country_wgaps = pd.read_csv('data/' + datatype + '/' + str(year) + '/' + copy_code + '/' + str(year) +
+                                    '_' + copy_atc + '_' + copy_tech + '.csv', sep='\t', encoding='utf-8')
         data_w_nan = duplicate_nans(original, country_wgaps, val_col)
     return original, data_w_nan
 
@@ -57,14 +57,14 @@ def read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps, cod
 def insert_gaps(original, val_col, amount_gaps):
     """
     inserts gaps into the dataframe on a random basis
-    :param original:
-    :type original:
-    :param val_col:
-    :type val_col:
-    :param amount_gaps:
-    :type amount_gaps:
-    :return:
-    :rtype:
+    :param original: original dataframe without gaps
+    :type original: dataframe
+    :param val_col: header of the column which contains the important values
+    :type val_col: string
+    :param amount_gaps: amount of gaps inserted into the original dataframe
+    :type amount_gaps: float
+    :return: dataframe with gaps
+    :rtype: dataframe
     """
     # create copy so we do not change original
     original_copy = original.copy()
@@ -79,15 +79,15 @@ def insert_gaps(original, val_col, amount_gaps):
 
 def duplicate_nans(df_wout_nan, gap_data, val_col):
     """
-    duplicates the empty rows into a gapfree dataframe
+    duplicates the empty rows of gap_data into a gapfree dataframe
     :param df_wout_nan: the dataframe we want to fill with gaps
-    :type df_wout_nan:
-    :param gap_data: mapcode of the dataframe we want to duplicate the gaps from
-    :type gap_data:
-    :param val_col:
-    :type val_col:
-    :return:
-    :rtype:
+    :type df_wout_nan: dataframe
+    :param gap_data: dataframe we want to duplicate the gaps from
+    :type gap_data: dataframe
+    :param val_col: header of the column which contains the important values
+    :type val_col: string
+    :return: dataframe with gaps
+    :rtype: dataframe
     """
     # copy so we don't modify the original
     df_wout_copy = df_wout_nan.copy()
@@ -104,23 +104,14 @@ def duplicate_nans(df_wout_nan, gap_data, val_col):
 
 def validation(original, filled_gaps):
     """
-
-    :param original:
-    :type original:
-    :param filled_gaps:
-    :type filled_gaps:
-    :return:
-    :rtype:
+    validates the predicted data via MAE, RMSE and R^2
+    :param original: original dataframe without gaps
+    :type original: dataframe
+    :param filled_gaps: dataframe with filled gaps
+    :type filled_gaps: dataframe
+    :return: validation values
+    :rtype: list
     """
     validation = [mean_absolute_error(original, filled_gaps), np.sqrt(mean_squared_error(original, filled_gaps)),
                   r2_score(original, filled_gaps)]
     return validation
-
-
-def readin_test(datatype, year, country, atc, tech, name, method1, method2):
-    # read in the file
-    file_one = pd.read_csv('data/' + datatype + '/' + str(year) + '/' + country + '/' + name + '/' + atc + '_' + tech +
-                           '_filled_' + method1 + '.csv', sep='\t', encoding='utf-8')
-    file_two = pd.read_csv('data/' + datatype + '/' + str(year) + '/' + country + '/' + name + '/' + atc + '_' + tech +
-                           '_filled_' + method2 + '.csv', sep='\t', encoding='utf-8')
-    return file_one, file_two

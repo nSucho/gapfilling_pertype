@@ -17,25 +17,25 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 def check_for_gaps(file_df_original, areatypecode, country, technology, month, year, val_col, header, datatype):
     """
-
-    :param file_df_original:
-    :type file_df_original:
-    :param areatypecode:
-    :type areatypecode:
-    :param country:
-    :type country:
-    :param technology:
-    :type technology:
-    :param month:
-    :type month:
-    :param year:
-    :type year:
-    :param val_col:
-    :type val_col:
-    :param header:
-    :type header:
-    :param datatype:
-    :type datatype:
+    checks the original dataframe for gaps
+    :param file_df_original: the original dataframe
+    :type file_df_original: dataframe
+    :param areatypecode: area type code of the original dataframe
+    :type areatypecode: string
+    :param country: country code of the original dataframe
+    :type country: string
+    :param technology: technology of the original dataframe
+    :type technology: string
+    :param month: month of the data
+    :type month: int
+    :param year: year of the data
+    :type year: string
+    :param val_col: header of the column with the important values
+    :type val_col: string
+    :param header: whole header of the dataframe
+    :type header: list
+    :param datatype: type of the data
+    :type datatype: string
     :return:
     :rtype:
     """
@@ -184,21 +184,21 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
 
 def gap_list_creator(old_date, new_date, gap_list, areatypecode, country, technology):
     """
-
-    :param old_date:
-    :type old_date:
-    :param new_date:
-    :type new_date:
-    :param gap_list:
-    :type gap_list:
-    :param areatypecode:
-    :type areatypecode:
-    :param country:
-    :type country:
-    :param technology:
-    :type technology:
-    :return:
-    :rtype:
+    creates a list of all found gaps in the dataframe
+    :param old_date: start date for checking
+    :type old_date: date
+    :param new_date: finish date for checking
+    :type new_date: date
+    :param gap_list: list of all gaps found until this point
+    :type gap_list: list
+    :param areatypecode: area type code of the data
+    :type areatypecode: string
+    :param country: country code of the data
+    :type country: string
+    :param technology: technology of the data
+    :type technology: string
+    :return: list of gaps
+    :rtype: list
     """
     # add an hour to check for gap
     old_h_added = old_date + pd.Timedelta(1, unit='H')

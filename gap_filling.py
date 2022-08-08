@@ -15,9 +15,9 @@ import readin_aux  # only for the time calculation
 import os
 
 
-def gapfill_main(fedot_window, amount_gaps):
+def gapfill_main():
     """
-
+    calls all necessary files to fill the gaps
     :return:
     :rtype:
     """
@@ -40,11 +40,12 @@ def gapfill_main(fedot_window, amount_gaps):
     create_gaps = True
     duplicate_gaps = False
     # country which the gaps should be duplicated from
-    code_wgaps = 'LU'
-    atc_gaps = 'CTY'
+    copy_code = 'NIE'
+    copy_atc = 'CTA'
+    copy_tech = 'Wind Onshore'
     # set the size of the sliding window for FEDOT and the amount of gaps which should be inserted in 'create_gaps'
-    #fedot_window = 100
-    #amount_gaps = 0.15  # 0.1 = 10% of the available data should be gaps
+    fedot_window = 100
+    amount_gaps = 0.15  # 0.1 = 10% of the available data should be gaps
     # check the datatype and set the header accordingly
     if datatype == 'agpt':
         val_col = 'ActualGenerationOutput'
@@ -52,6 +53,7 @@ def gapfill_main(fedot_window, amount_gaps):
     elif datatype == 'totalload':
         # change tech to 'none' because the tables don't have a technology
         tech = 'noTech'
+        copy_tech = 'noTech'
         val_col = 'TotalLoadValue'
         header = ['DateTime', 'TotalLoadValue']
 
@@ -59,7 +61,7 @@ def gapfill_main(fedot_window, amount_gaps):
     # read in the file (and create gaps)
     # ----------
     original, data_w_nan = gap_filling_aux.read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps,
-                                                   code_wgaps, atc_gaps, val_col, amount_gaps)
+                                                   copy_code, copy_atc, copy_tech, val_col, amount_gaps)
     original_series = np.array(original[val_col])
 
     # ----------
@@ -77,15 +79,8 @@ def gapfill_main(fedot_window, amount_gaps):
     # ----------
     # fedot-methods to fill the gaps and calculate the validation values
     # ----------
-    #fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header,
-    #                                                   fedot_window)
-    # TODO: changed fedot
-    fedot_bi = original
-    fedot_fwrd = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header,
-                                             fedot_window)
-    # for testing read in files instead of fill
-    #fedot_fwrd = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'fedot', 'forward',
-    #                                                   'bidirect')
+    fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header,
+                                                       fedot_window)
     # create an array to calculate the validation
     fedot_fwrd_series = np.array(fedot_fwrd[val_col])
     fedot_bi_series = np.array(fedot_bi[val_col])
@@ -98,9 +93,6 @@ def gapfill_main(fedot_window, amount_gaps):
     # ----------
     kalman_struct, kalman_arima = filling_kalman.kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col,
                                                                header)
-    # for testing read in files instead of fill
-    # kalman_struct, kalman_arima = gap_filling_aux.readin_test(datatype, year, country, atc, tech, 'kalman', 'structts',
-    #                                                          'arima')
     # create an array to calculate the validation
     kalman_struct_series = np.array(kalman_struct[val_col])
     kalman_arima_series = np.array(kalman_arima[val_col])
@@ -154,10 +146,6 @@ def gapfill_main(fedot_window, amount_gaps):
         file_object.write("\n")
         file_object.write("\n")
 
-    #print('Average week, linear average week: ', avg_week_vali, lin_avg_week_vali)
-    #print('FEDOT forward, bidirect: ', fedot_fwrd_vali, fedot_bi_vali)
-    #print('Kalman structTS, arima: ', kalman_struct_vali, kalman_arima_vali)
-
     # stop time to check how long program was running
     end_time = time.time()
     time_lapsed = end_time - start_time
@@ -165,9 +153,4 @@ def gapfill_main(fedot_window, amount_gaps):
 
 
 if __name__ == '__main__':
-    windows = [200, 250]
-    gaps = [0.15]
-    for gap in gaps:
-        for window in windows:
-            gapfill_main(window, gap)
-
+    gapfill_main()

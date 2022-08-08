@@ -12,35 +12,35 @@ import pandas as pd
 def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, avg_week, lin_avg_week, val_col, datatype,
                  year, country, tech, fedot_window, amount_gaps):
     """
-
-    :param original:
-    :type original:
-    :param fedot_fwrd:
-    :type fedot_fwrd:
-    :param fedot_bi:
-    :type fedot_bi:
-    :param kalman_struct:
-    :type kalman_struct:
-    :param kalman_arima:
-    :type kalman_arima:
-    :param avg_week:
-    :type avg_week:
-    :param lin_avg_week:
-    :type lin_avg_week:
-    :param val_col:
-    :type val_col:
-    :param datatype:
-    :type datatype:
-    :param year:
-    :type year:
-    :param country:
-    :type country:
-    :param tech:
-    :type tech:
-    :param fedot_window:
-    :type fedot_window:
-    :param amount_gaps:
-    :type amount_gaps:
+    plots the difference and standardizing of the original data to the predicted one
+    :param original: original data without gaps
+    :type original: dataframe
+    :param fedot_fwrd: dataframe with predicted values of fedot forward
+    :type fedot_fwrd: dataframe
+    :param fedot_bi: dataframe with predicted values of fedot bidirect
+    :type fedot_bi: dataframe
+    :param kalman_struct: dataframe with predicted values of kalman structts
+    :type kalman_struct: dataframe
+    :param kalman_arima: dataframe with predicted values of kalman auto.arima
+    :type kalman_arima: dataframe
+    :param avg_week: dataframe with predicted values of average week
+    :type avg_week: dataframe
+    :param lin_avg_week: dataframe with predicted values of linear average week
+    :type lin_avg_week: dataframe
+    :param val_col: header of the important column with the values
+    :type val_col: string
+    :param datatype: type of the data
+    :type datatype: string
+    :param year: year of the data
+    :type year: string
+    :param country: country code of the original data
+    :type country: string
+    :param tech: technology of the original data
+    :type tech: string
+    :param fedot_window: window size for the fedot pipeline
+    :type fedot_window: int
+    :param amount_gaps: amount of the gaps inserted
+    :type amount_gaps: float
     :return:
     :rtype:
     """
@@ -84,7 +84,6 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
     # ----------
     # plot the standardizing
     # ----------
-    # TODO: why standardize
     plt.plot(original['DateTime'], stand_avg_week, color='#377eb8', label='Actual values in the gaps')
     plt.plot(original['DateTime'], stand_lin_avg_week, color='#ff7f00', label='Local polynomial')
     plt.plot(original['DateTime'], stand_fedot_fwrd, color='#999999', label='Actual values in the gaps')
@@ -108,31 +107,31 @@ def plot_filling(original, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, av
 def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct, kalman_arima, datatype, year, country,
                     tech, fedot_window, amount_gaps):
     """
-
-    :param avg_week:
-    :type avg_week:
-    :param lin_avg_week:
-    :type lin_avg_week:
-    :param fedot_fwrd:
-    :type fedot_fwrd:
-    :param fedot_bi:
-    :type fedot_bi:
-    :param kalman_struct:
-    :type kalman_struct:
-    :param kalman_arima:
-    :type kalman_arima:
-    :param datatype:
-    :type datatype:
-    :param year:
-    :type year:
-    :param country:
-    :type country:
-    :param tech:
-    :type tech:
-    :param fedot_window:
-    :type fedot_window:
-    :param amount_gaps:
-    :type amount_gaps:
+    plot the results of the validation of the predicitons
+    :param avg_week: dataframe with predicted values of average week
+    :type avg_week: dataframe
+    :param lin_avg_week: dataframe with predicted values of linear average week
+    :type lin_avg_week: dataframe
+    :param fedot_fwrd: dataframe with predicted values of fedot forward
+    :type fedot_fwrd: dataframe
+    :param fedot_bi: dataframe with predicted values of fedot bidirect
+    :type fedot_bi: dataframe
+    :param kalman_struct: dataframe with predicted values of kalman structts
+    :type kalman_struct: dataframe
+    :param kalman_arima: dataframe with predicted values of kalman auto.arima
+    :type kalman_arima: dataframe
+    :param datatype: type of the data
+    :type datatype: string
+    :param year: year of the original data
+    :type year: string
+    :param country: country code of the original data
+    :type country: string
+    :param tech: technology of the original data
+    :type tech: string
+    :param fedot_window: window size for the fedot pipeline
+    :type fedot_window: int
+    :param amount_gaps: amount of gaps inserted into the original dataframe
+    :type amount_gaps: float
     :return:
     :rtype:
     """
@@ -204,12 +203,12 @@ def plot_validation(avg_week, lin_avg_week, fedot_fwrd, fedot_bi, kalman_struct,
 def substract(original_series, second_series):
     """
     substracts the filled series from the original
-    :param original_series:
-    :type original_series:
-    :param second_series:
-    :type second_series:
-    :return:
-    :rtype:
+    :param original_series: values of the original series
+    :type original_series: series
+    :param second_series: values of the new series
+    :type second_series: series
+    :return: the difference of the two series
+    :rtype: series
     """
     diff = original_series.sub(second_series)
     return diff
@@ -217,11 +216,11 @@ def substract(original_series, second_series):
 
 def standardizing(array1):
     """
-
-    :param array1:
-    :type array1:
-    :return:
-    :rtype:
+    standardizing the difference of two series
+    :param array1: array with the series
+    :type array1: array
+    :return: array with the standardization
+    :rtype: array
     """
     x = (array1 - array1.mean()) / array1.std()
     return x

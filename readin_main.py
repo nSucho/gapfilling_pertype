@@ -13,7 +13,7 @@ from csv import *
 
 def readin_data():
     """
-
+    does some preperation for the sorting of the whole data and then starts the process
     :return:
     :rtype:
     """
@@ -25,7 +25,7 @@ def readin_data():
     # ----------
     year = '2021'
     # options for datatype => 'agpt' (ActGenPerType) or 'totalload'(ActTotLoad)
-    datatype = 'totalload'
+    datatype = 'agpt'
 
     # reset the countries_w_gaps.csv, to fill with new countries, which have gaps, later
     with open("countries_w_gaps_"+datatype+"_"+year+".csv", "w") as csvfile:

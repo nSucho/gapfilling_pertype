@@ -10,21 +10,21 @@ import csv
 
 def unify_year(year, country, areatypecode, technology, datatype, val_col, header):
     """
-
-    :param year:
-    :type year:
-    :param country:
-    :type country:
-    :param areatypecode:
-    :type areatypecode:
-    :param technology:
-    :type technology:
-    :param datatype:
-    :type datatype:
-    :param val_col:
-    :type val_col:
-    :param header:
-    :type header:
+    unifies the monthly data to a whole year
+    :param year: year of the data
+    :type year: string
+    :param country: country code of the data
+    :type country: string
+    :param areatypecode: area type code of the data
+    :type areatypecode: string
+    :param technology: technology of the data
+    :type technology: string
+    :param datatype: data type of the data
+    :type datatype: string
+    :param val_col: header of the column with the important values
+    :type val_col: string
+    :param header: header which is used for the data
+    :type header: list
     :return:
     :rtype:
     """
@@ -55,21 +55,21 @@ def unify_year(year, country, areatypecode, technology, datatype, val_col, heade
 
 def analyze_gap_length(check_df, year, country, areatypecode, technology, datatype, val_col):
     """
-
-    :param check_df:
-    :type check_df:
-    :param year:
-    :type year:
-    :param country:
-    :type country:
-    :param areatypecode:
-    :type areatypecode:
-    :param technology:
-    :type technology:
-    :param datatype:
-    :type datatype:
-    :param val_col:
-    :type val_col:
+    analyzes the length of the gaps in the dataframe
+    :param check_df: dataframe to analyze
+    :type check_df: dataframe
+    :param year: year of the dataframe
+    :type year: string
+    :param country: country of the dataframe
+    :type country: string
+    :param areatypecode: area type code of the data
+    :type areatypecode: string
+    :param technology: technology of the data
+    :type technology: string
+    :param datatype: datatype of the data
+    :type datatype: string
+    :param val_col: header of the important column
+    :type val_col: string
     :return:
     :rtype:
     """
@@ -109,10 +109,10 @@ def analyze_gap_length(check_df, year, country, areatypecode, technology, dataty
 
 def consecutive_nans(ds):
     """
-
-    :param ds:
-    :type ds:
-    :return:
+    groups all gaps by their length and retruns how long they are
+    :param ds: data with nans
+    :type ds: dataframe
+    :return: length of gaps as index and amount of gap-lengths per column
     :rtype:
     """
     return ds.isnull().astype(int).groupby(ds.notnull().astype(int).cumsum()).sum()
@@ -120,19 +120,19 @@ def consecutive_nans(ds):
 
 def calc_missing_data(df_to_check, year, country, areatypecode, technology, val_col, datatype):
     """
-
-    :param df_to_check:
-    :type df_to_check:
-    :param year:
-    :type year:
-    :param country:
-    :type country:
-    :param areatypecode:
-    :type areatypecode:
-    :param technology:
-    :type technology:
-    :param val_col:
-    :type val_col:
+    check country for missing data and save that into a csv-file
+    :param df_to_check: dataframe to check
+    :type df_to_check: dataframe
+    :param year: year of the dataframe
+    :type year: string
+    :param country: country code of the dataframe
+    :type country: string
+    :param areatypecode: area type code of the dataframe
+    :type areatypecode: string
+    :param technology: technology of the dataframe
+    :type technology: string
+    :param val_col: header of the column with the important values
+    :type val_col: string
     :return:
     :rtype:
     """

@@ -17,17 +17,17 @@ import glob
 
 def process_files(files, datatype, val_col, header, year):
     """
-
-    :param files:
-    :type files:
-    :param datatype:
-    :type datatype:
-    :param val_col:
-    :type val_col:
-    :param header:
-    :type header:
-    :param year:
-    :type year:
+    calls all necessary functions to sort the data properly
+    :param files: path to the files needed
+    :type files: list
+    :param datatype: type of the data
+    :type datatype: string
+    :param val_col: header of the important column
+    :type val_col: string
+    :param header: whole header for the dataframes
+    :type header: list
+    :param year: year of the data
+    :type year: string
     :return:
     :rtype:
     """
@@ -84,6 +84,8 @@ def process_files(files, datatype, val_col, header, year):
     if datatype == 'agpt':
         for atcode in atcodes:
             for technology in technologies:
+                if technology == 'Fossil Brown coal/Lignite':
+                    technology = 'Fossil Brown coal Lignite'
                 for country in countries:
                     # check if there is a file in the folder which fits the atc and country
                     check_files = glob.glob(
@@ -104,7 +106,7 @@ def process_files(files, datatype, val_col, header, year):
                                                     freq='H', inclusive='both')
                                 # create the dataframe
                                 df = pd.DataFrame({'DateTime': rng, 'AreaTypeCode': atcode, 'MapCode': country,
-                                                   'TotalLoadvalue': np.nan})
+                                                   'ProductionType': technology, 'ActualGenerationOutput': np.nan})
                                 # save the dataframe
                                 df.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted/' +
                                           str(month) + '_' + atcode + '_' + technology + '_wgaps.csv', sep='\t',
@@ -156,11 +158,11 @@ def process_files(files, datatype, val_col, header, year):
 
 def list_countries(file_df):
     """
-
-    :param file_df:
-    :type file_df:
-    :return:
-    :rtype:
+    creates a list with all countries in the data
+    :param file_df: dataframe to check
+    :type file_df: dataframe
+    :return: list of all countries
+    :rtype: list
     """
     file_copy = file_df.copy()
     # take only the technologies of the country and drop the duplicates
@@ -172,11 +174,11 @@ def list_countries(file_df):
 
 def list_areatypecode(file_df):
     """
-
-    :param file_df:
-    :type file_df:
-    :return:
-    :rtype:
+    creates a list with all area type codes in the data
+    :param file_df: dataframe to check
+    :type file_df: dataframe
+    :return: list of all area type codes
+    :rtype: list
     """
     file_copy = file_df.copy()
     # take only the technologies of the country and drop the duplicates
@@ -188,11 +190,11 @@ def list_areatypecode(file_df):
 
 def list_technologies(file_df):
     """
-
-    :param file_df:
-    :type file_df:
-    :return:
-    :rtype:
+    creates a list with all technologies in the data
+    :param file_df: dataframe to check
+    :type file_df: dataframe
+    :return: list of all technologies
+    :rtype: list
     """
     file_copy = file_df.copy()
     # take only the technologies of the country and drop the duplicates
@@ -207,9 +209,9 @@ def list_technologies(file_df):
 
 def create_path(path):
     """
-
-    :param path:
-    :type path:
+    checks if a path already exists, if not creates it
+    :param path: path to check
+    :type path: string
     :return:
     :rtype:
     """
@@ -220,9 +222,9 @@ def create_path(path):
 
 def time_convert(sec):
     """
-
-    :param sec:
-    :type sec:
+    stop watch
+    :param sec: amount of time the code needed to run
+    :type sec: int
     :return:
     :rtype:
     """
@@ -240,11 +242,11 @@ def time_convert(sec):
 
 def calc_missing_data(df_to_check):
     """
-
-    :param df_to_check:
-    :type df_to_check:
-    :return:
-    :rtype:
+    calculate the amount of missing data
+    :param df_to_check: datframe whicht should be checked
+    :type df_to_check: dataframe
+    :return: amount of missing data
+    :rtype: float
     """
     missing_data_o = df_to_check['ActualGenerationOutput'].isna().sum()
     missing_percent = (missing_data_o / len(df_to_check.index)) * 100

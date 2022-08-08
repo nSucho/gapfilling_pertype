@@ -15,27 +15,27 @@ from fedot.utilities.ts_gapfilling import ModelGapFiller
 # can still not handle gaps in first 7 segments
 def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header, fedot_window):
     """
-
-    :param data_w_nan:
-    :type data_w_nan:
-    :param country:
-    :type country:
-    :param year:
-    :type year:
-    :param atc:
-    :type atc:
-    :param tech:
-    :type tech:
-    :param datatype:
-    :type datatype:
-    :param val_col:
-    :type val_col:
-    :param header:
-    :type header:
-    :param fedot_window:
-    :type fedot_window:
-    :return:
-    :rtype:
+    fill the gaps using fedot forward and bidirect
+    :param data_w_nan: dataframe containing the gaps
+    :type data_w_nan: dataframe
+    :param country: code of the country
+    :type country: string
+    :param year: year of the data
+    :type year: string
+    :param atc: area type code of the dataframe
+    :type atc: string
+    :param tech: technology of the dataframe
+    :type tech: string
+    :param datatype: type of the data
+    :type datatype: string
+    :param val_col: header of the column which contains the important values
+    :type val_col: string
+    :param header: whole header of the dataframe
+    :type header: list
+    :param fedot_window: window size for the pipeline
+    :type fedot_window: int
+    :return: by fedot filled dataframes
+    :rtype: dataframe
     """
     # copy the df so we do not change the original
     df_w_nan_copy = data_w_nan.copy()
@@ -83,15 +83,14 @@ def get_simple_ridge_pipeline(fedot_window):
     """
 
     :param fedot_window: size of the sliding window
-    :type fedot_window:
-    :return:
+    :type fedot_window: int
+    :return: the pipeline for fedot
     :rtype:
     """
     node_lagged = PrimaryNode('lagged')
     node_lagged.custom_params = {'window_size': fedot_window}
 
-    node_final = SecondaryNode('ridge', nodes_from=[node_lagged])
+    node_final = SecondaryNode('dtreg', nodes_from=[node_lagged])
     pipeline = Pipeline(node_final)
 
     return pipeline
-

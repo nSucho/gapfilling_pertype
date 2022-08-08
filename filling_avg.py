@@ -11,18 +11,18 @@ import numpy as np
 def avg_week_method(data_w_nan, country, year, atc, tech, datatype, val_col, header):
     """
     fills the gaps using lineare interpolation and average of the week
-    :param data_w_nan:
-    :type data_w_nan:
-    :param country:
-    :type country:
-    :param year:
-    :type year:
-    :param atc:
-    :type atc:
-    :param tech:
-    :type tech:
-    :return:
-    :rtype:
+    :param data_w_nan: dataframe containing the gaps
+    :type data_w_nan: dataframe
+    :param country: code of the country
+    :type country: string
+    :param year: year of the data
+    :type year: string
+    :param atc: area type code of the dataframe
+    :type atc: string
+    :param tech: technology of the dataframe
+    :type tech: string
+    :return: the filled dataframe from both methods
+    :rtype: dataframe
     """
     # copy the df so we do not change the original
     df_w_nan_copy = data_w_nan.copy()
@@ -34,8 +34,14 @@ def avg_week_method(data_w_nan, country, year, atc, tech, datatype, val_col, hea
     # now we fill all NaN's with the mean of this week
     # ----------
     avg_week = df_w_nan_copy[val_col].fillna(df_w_nan_copy.groupby('Week')[val_col].transform('mean'))
+    # check if any nan values left
+    if avg_week.isnull().values.any():
+        # if so fill with avg of whole year
+        avg_week.fillna(avg_week.mean(), inplace=True)
 
+    # ----------
     # as second method we first fill up to 3h linear and everything longer with avg week
+    # ----------
     # get the length of all gaps in the dataframe
     gap_length = df_w_nan_copy[val_col].isnull().astype(int).groupby(
         df_w_nan_copy[val_col].notnull().astype(int).cumsum()).sum()
@@ -55,10 +61,12 @@ def avg_week_method(data_w_nan, country, year, atc, tech, datatype, val_col, hea
             df_w_nan_copy.loc[index+n, val_col] = df_interpolated.loc[index+n]
             l += 1
             n += 1
-    # ----------
     # fill rest of the nan's with the "average-week"-method
-    # ----------
     lin_avg_week = df_w_nan_copy[val_col].fillna(df_w_nan_copy.groupby('Week')[val_col].transform('mean'))
+    # check if any nan values left
+    if lin_avg_week.isnull().values.any():
+        # if so fill with avg of whole year
+        lin_avg_week.fillna(lin_avg_week.mean(), inplace=True)
 
     # combine the values with the corresponding time
     df_avg_week = pd.concat([df_w_nan_copy['DateTime'], pd.Series(avg_week)], axis=1)

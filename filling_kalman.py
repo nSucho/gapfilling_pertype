@@ -16,25 +16,25 @@ kalman_auto_arima = robjects.r['na_kalman']
 
 def kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col, header):
     """
-
-    :param data_w_nan:
-    :type data_w_nan:
-    :param country:
-    :type country:
-    :param year:
-    :type year:
-    :param atc:
-    :type atc:
-    :param tech:
-    :type tech:
-    :param datatype:
-    :type datatype:
-    :param val_col:
-    :type val_col:
-    :param header:
-    :type header:
-    :return:
-    :rtype:
+    fills the gaps with the kalman filter
+    :param data_w_nan: dataframe containing the gaps
+    :type data_w_nan: dataframe
+    :param country: code of the country
+    :type country: string
+    :param year: year of the data
+    :type year: string
+    :param atc: area type code of the dataframe
+    :type atc: string
+    :param tech: technology of the dataframe
+    :type tech: string
+    :param datatype: type of the data
+    :type datatype: string
+    :param val_col: header of the column which contains the important values
+    :type val_col: string
+    :param header: whole header of the dataframe
+    :type header: list
+    :return: filled dataframes from kalman methods
+    :rtype: dataframe
     """
     # copy the df so we do not change the original
     df_w_nan_copy = data_w_nan.copy()
