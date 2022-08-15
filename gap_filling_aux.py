@@ -45,12 +45,16 @@ def read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps, cop
                            tech + '.csv', sep='\t', encoding='utf-8')
     # set 'DateTime' as datetime-type
     original['DateTime'] = pd.to_datetime(original['DateTime'])
-    if create_gaps:
-        data_w_nan = insert_gaps(original, val_col, amount_gaps)
-    if duplicate_gaps:
-        country_wgaps = pd.read_csv('data/' + datatype + '/' + str(year) + '/' + copy_code + '/' + str(year) +
-                                    '_' + copy_atc + '_' + copy_tech + '.csv', sep='\t', encoding='utf-8')
-        data_w_nan = duplicate_nans(original, country_wgaps, val_col)
+    # check if gaps should be created or duplicated, else just set the orignal as data_w_nan
+    if create_gaps or duplicate_gaps:
+        if create_gaps:
+            data_w_nan = insert_gaps(original, val_col, amount_gaps)
+        if duplicate_gaps:
+            country_wgaps = pd.read_csv('data/' + datatype + '/' + str(year) + '/' + copy_code + '/' + str(year) +
+                                        '_' + copy_atc + '_' + copy_tech + '.csv', sep='\t', encoding='utf-8')
+            data_w_nan = duplicate_nans(original, country_wgaps, val_col)
+    else:
+        data_w_nan = original
     return original, data_w_nan
 
 

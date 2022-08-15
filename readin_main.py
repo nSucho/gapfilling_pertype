@@ -11,21 +11,15 @@ import time
 from csv import *
 
 
-def readin_data():
+def readin_data(datatype, year):
     """
     does some preperation for the sorting of the whole data and then starts the process
+    :param datatype:
+    :param year:
     :return:
-    :rtype:
     """
     # start time to check how long program was running
     start_time = time.time()
-
-    # ----------
-    # define the year and the type of the data
-    # ----------
-    year = '2021'
-    # options for datatype => 'agpt' (ActGenPerType) or 'totalload'(ActTotLoad)
-    datatype = 'agpt'
 
     # reset the countries_w_gaps.csv, to fill with new countries, which have gaps, later
     with open("countries_w_gaps_"+datatype+"_"+year+".csv", "w") as csvfile:
@@ -64,4 +58,11 @@ def readin_data():
 
 
 if __name__ == '__main__':
-    readin_data()
+    # ----------
+    # define the year and the type of the data
+    # ----------
+    year = '2021'
+    # options for datatype => 'agpt' (ActGenPerType) or 'totalload'(ActTotLoad)
+    datatype = 'agpt'
+
+    readin_data(datatype, year)
