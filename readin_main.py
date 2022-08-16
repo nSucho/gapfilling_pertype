@@ -63,6 +63,6 @@ if __name__ == '__main__':
     # ----------
     year = '2021'
     # options for datatype => 'agpt' (ActGenPerType) or 'totalload'(ActTotLoad)
-    datatype = 'agpt'
+    datatype = 'totalload'
 
     readin_data(datatype, year)

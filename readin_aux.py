@@ -13,6 +13,7 @@ import readin_gap_finder
 import readin_to_year
 import calendar
 import glob
+from datetime import date
 
 
 def process_files(files, datatype, val_col, header, year):
@@ -80,65 +81,67 @@ def process_files(files, datatype, val_col, header, year):
                     readin_gap_finder.check_for_gaps(file_df, atcode, country, 'noTech', month, year, val_col, header,
                                                      datatype)
 
-    # check if no monthly files are missing, else create
-    if datatype == 'agpt':
-        for atcode in atcodes:
-            for technology in technologies:
-                if technology == 'Fossil Brown coal/Lignite':
-                    technology = 'Fossil Brown coal Lignite'
+    # check if no monthly files are missing, else create (only for years which are completely over)
+    current_year = date.today().year
+    if year != str(current_year):
+        if datatype == 'agpt':
+            for atcode in atcodes:
+                for technology in technologies:
+                    if technology == 'Fossil Brown coal/Lignite':
+                        technology = 'Fossil Brown coal Lignite'
+                    for country in countries:
+                        # check if there is a file in the folder which fits the atc and country
+                        check_files = glob.glob(
+                            'data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted/??_' + atcode + '_' +
+                            technology + '_?*', recursive=False)
+                        if check_files:
+                            # check if any of the months are missing
+                            month_list = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+                            for month in month_list:
+                                check_file = glob.glob('data/' + datatype + '/' + str(year) + '/' + country +
+                                                       '/final_sorted/' + month + '_' + atcode + '_' + technology + '_?*')
+                                if not check_file:
+                                    # if a month is missing, create it
+                                    last_day_of_month = calendar.monthrange(int(year), int(month))[1]
+                                    # create the range of the month
+                                    rng = pd.date_range(start=year + '-' + month + '-01 00:00:00',
+                                                        end=year + '-' + month + '-' + str(last_day_of_month) + ' 23:00:00',
+                                                        freq='H', inclusive='both')
+                                    # create the dataframe
+                                    df = pd.DataFrame({'DateTime': rng, 'AreaTypeCode': atcode, 'MapCode': country,
+                                                       'ProductionType': technology, 'ActualGenerationOutput': np.nan})
+                                    # save the dataframe
+                                    df.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted/' +
+                                              str(month) + '_' + atcode + '_' + technology + '_wgaps.csv', sep='\t',
+                                              encoding='utf-8', index=False, header=header)
+        # ActTotLoad
+        elif datatype == 'totalload':
+            for atcode in atcodes:
                 for country in countries:
                     # check if there is a file in the folder which fits the atc and country
                     check_files = glob.glob(
                         'data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted/??_' + atcode + '_' +
-                        technology + '_?*', recursive=False)
+                        'noTech' + '_?*', recursive=False)
                     if check_files:
                         # check if any of the months are missing
                         month_list = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
                         for month in month_list:
                             check_file = glob.glob('data/' + datatype + '/' + str(year) + '/' + country +
-                                                   '/final_sorted/' + month + '_' + atcode + '_' + technology + '_?*')
+                                      '/final_sorted/' + month + '_' + atcode + '_' + 'noTech' + '_?*')
                             if not check_file:
                                 # if a month is missing, create it
                                 last_day_of_month = calendar.monthrange(int(year), int(month))[1]
                                 # create the range of the month
-                                rng = pd.date_range(start=year + '-' + month + '-01 00:00:00',
-                                                    end=year + '-' + month + '-' + str(last_day_of_month) + ' 23:00:00',
+                                rng = pd.date_range(start=year+'-'+month+'-01 00:00:00',
+                                                    end=year+'-'+month+'-'+str(last_day_of_month)+' 23:00:00',
                                                     freq='H', inclusive='both')
                                 # create the dataframe
                                 df = pd.DataFrame({'DateTime': rng, 'AreaTypeCode': atcode, 'MapCode': country,
-                                                   'ProductionType': technology, 'ActualGenerationOutput': np.nan})
+                                                   'TotalLoadvalue': np.nan})
                                 # save the dataframe
                                 df.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted/' +
-                                          str(month) + '_' + atcode + '_' + technology + '_wgaps.csv', sep='\t',
+                                          str(month) + '_' + atcode + '_' + 'noTech' + '_wgaps.csv', sep='\t',
                                           encoding='utf-8', index=False, header=header)
-    # ActTotLoad
-    elif datatype == 'totalload':
-        for atcode in atcodes:
-            for country in countries:
-                # check if there is a file in the folder which fits the atc and country
-                check_files = glob.glob(
-                    'data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted/??_' + atcode + '_' +
-                    'noTech' + '_?*', recursive=False)
-                if check_files:
-                    # check if any of the months are missing
-                    month_list = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
-                    for month in month_list:
-                        check_file = glob.glob('data/' + datatype + '/' + str(year) + '/' + country +
-                                  '/final_sorted/' + month + '_' + atcode + '_' + 'noTech' + '_?*')
-                        if not check_file:
-                            # if a month is missing, create it
-                            last_day_of_month = calendar.monthrange(int(year), int(month))[1]
-                            # create the range of the month
-                            rng = pd.date_range(start=year+'-'+month+'-01 00:00:00',
-                                                end=year+'-'+month+'-'+str(last_day_of_month)+' 23:00:00',
-                                                freq='H', inclusive='both')
-                            # create the dataframe
-                            df = pd.DataFrame({'DateTime': rng, 'AreaTypeCode': atcode, 'MapCode': country,
-                                               'TotalLoadvalue': np.nan})
-                            # save the dataframe
-                            df.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted/' +
-                                      str(month) + '_' + atcode + '_' + 'noTech' + '_wgaps.csv', sep='\t',
-                                      encoding='utf-8', index=False, header=header)
 
     # unify for every combination the year to fill the gaps afterwards
     # ActGenPerType
