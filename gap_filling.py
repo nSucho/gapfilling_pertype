@@ -8,17 +8,17 @@ import filling_fedot
 import filling_kalman
 import filling_avg
 import gap_filling_aux
-import gap_filling_plotting
 import numpy as np
 import time
-import readin_aux  # only for the time calculation
-import os
+from readin_SFTP import readin_aux
 
 
-def gapfill_main(datatype, year, country, atc, tech, copy_code, copy_atc, copy_tech, fedot_window, amount_gaps,
+# TODO: add optional variables
+def gapfill_main(origin_api, datatype, year, country, atc, tech, copy_code, copy_atc, copy_tech, fedot_window, amount_gaps,
                  create_gaps, duplicate_gaps):
     """
     calls all necessary files to fill the gaps
+    :param origin_api:
     :param datatype:
     :param year:
     :param country:
@@ -48,14 +48,15 @@ def gapfill_main(datatype, year, country, atc, tech, copy_code, copy_atc, copy_t
     # ----------
     # read in the file (and create gaps)
     # ----------
-    original, data_w_nan = gap_filling_aux.read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps,
-                                                   copy_code, copy_atc, copy_tech, val_col, amount_gaps)
+    # TODO: add origin
+    original, data_w_nan = gap_filling_aux.read_in(origin_api, datatype, year, atc, country, tech, create_gaps,
+                                                   duplicate_gaps, copy_code, copy_atc, copy_tech, val_col, amount_gaps)
     original_series = np.array(original[val_col])
     # ----------
     # average of the week to fill the gaps and calculate the validation values
     # ----------
-    avg_week, lin_avg_week = filling_avg.avg_week_method(data_w_nan, country, year, atc, tech, datatype, val_col,
-                                                         header)
+    avg_week, lin_avg_week = filling_avg.avg_week_method(origin_api, data_w_nan, country, year, atc, tech, datatype,
+                                                         val_col, header)
     # create an array to calculate the validation
     avg_week_series = np.array(avg_week[val_col])
     lin_avg_week_series = np.array(lin_avg_week[val_col])
@@ -63,8 +64,8 @@ def gapfill_main(datatype, year, country, atc, tech, copy_code, copy_atc, copy_t
     # ----------
     # fedot-methods to fill the gaps and calculate the validation values
     # ----------
-    fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header,
-                                                       fedot_window)
+    fedot_fwrd, fedot_bi = filling_fedot.fedot_frwd_bi(origin_api, data_w_nan, country, year, atc, tech, datatype,
+                                                       val_col, header, fedot_window)
     # create an array to calculate the validation
     fedot_fwrd_series = np.array(fedot_fwrd[val_col])
     fedot_bi_series = np.array(fedot_bi[val_col])
@@ -72,8 +73,8 @@ def gapfill_main(datatype, year, country, atc, tech, copy_code, copy_atc, copy_t
     # ----------
     # Kalman-filter to fill gaps and calculate the validation values
     # ----------
-    kalman_struct, kalman_arima = filling_kalman.kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col,
-                                                               header)
+    kalman_struct, kalman_arima = filling_kalman.kalman_method(origin_api, data_w_nan, country, year, atc, tech,
+                                                               datatype, val_col, header)
     # create an array to calculate the validation
     kalman_struct_series = np.array(kalman_struct[val_col])
     kalman_arima_series = np.array(kalman_arima[val_col])
@@ -149,6 +150,7 @@ def gapfill_main(datatype, year, country, atc, tech, copy_code, copy_atc, copy_t
 if __name__ == '__main__':
     # options for datatype => 'agpt' (ActGenPerType) or 'totalload'(ActTotLoad)
     datatype = 'totalload'
+    origin_api = False
 
     # the year, AreaTypeCode, country and technology of the data which should be used for prediction
     year = '2021'
@@ -175,13 +177,13 @@ if __name__ == '__main__':
         # check all technologies for the country and atc combination
         for tech in technologies['Technologies'].to_list():
             try:
-                gapfill_main(datatype, year, country, atc, tech, copy_code, copy_atc, copy_tech, fedot_window,
-                             amount_gaps, create_gaps, duplicate_gaps)
+                gapfill_main(origin_api, datatype, year, country, atc, tech, copy_code, copy_atc, copy_tech,
+                             fedot_window, amount_gaps, create_gaps, duplicate_gaps)
                 print(tech + " excepted")
             except Exception as e:
                 print(e)
     elif datatype == 'totalload':
         # change tech to 'none' because the tables don't have a technology
         tech = 'noTech'
-        gapfill_main(datatype, year, country, atc, tech, copy_code, copy_atc, copy_tech, fedot_window,
+        gapfill_main(origin_api, datatype, year, country, atc, tech, copy_code, copy_atc, copy_tech, fedot_window,
                      amount_gaps, create_gaps, duplicate_gaps)

@@ -14,9 +14,11 @@ kalman_StructTs = robjects.r['na_kalman']
 kalman_auto_arima = robjects.r['na_kalman']
 
 
-def kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col, header):
+def kalman_method(origin_api, data_w_nan, country, year, atc, tech, datatype, val_col, header):
     """
     fills the gaps with the kalman filter
+    :param origin_api: if data is downloaded by the api
+    :type origin_api: boolean
     :param data_w_nan: dataframe containing the gaps
     :type data_w_nan: dataframe
     :param country: code of the country
@@ -55,10 +57,6 @@ def kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col, heade
     # arguments, but then maybe less precise
     without_gaps_arima = np.array(kalman_StructTs(w_gaps, model="auto.arima", smooth=True, stepwise=False,
                                                   approximation=False))
-    # first check if folder exists to save data in
-    isExist = os.path.exists('data/' + datatype + '/' + str(year) + '/' + country + '/kalman')
-    if not isExist:
-        os.makedirs('data/' + datatype + '/' + str(year) + '/' + country + '/kalman')
 
     # combine filled values with date and time again
     df_structts = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gaps_structts)], axis=1)
@@ -67,11 +65,21 @@ def kalman_method(data_w_nan, country, year, atc, tech, datatype, val_col, heade
     df_structts.columns = header
     df_arima.columns = header
 
+    # check were to save
+    if origin_api:
+        path = 'data/' + datatype + '/api_data/' + str(year) + '/' + country
+    else:
+        path = 'data/' + datatype + '/' + str(year) + '/' + country
+
+    # first check if folder exists to save data in
+    isExist = os.path.exists(path + '/kalman')
+    if not isExist:
+        os.makedirs(path + '/kalman')
     # save the combined df as csv
-    pd.DataFrame(df_structts).to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/kalman/' + atc + '_' +
-                                     tech + '_filled_structts.csv', sep='\t', encoding='utf-8', index=False,
+    pd.DataFrame(df_structts).to_csv(path + '/kalman/' + atc + '_' + tech + '_filled_structts.csv',
+                                     sep='\t', encoding='utf-8', index=False,
                                      header=header)
-    pd.DataFrame(df_arima).to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/kalman/' + atc + '_' + tech
-                                  + '_filled_arima.csv', sep='\t', encoding='utf-8', index=False, header=header)
+    pd.DataFrame(df_arima).to_csv(path + '/kalman/' + atc + '_' + tech + '_filled_arima.csv',
+                                  sep='\t', encoding='utf-8', index=False, header=header)
 
     return df_structts, df_arima

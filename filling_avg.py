@@ -8,9 +8,11 @@ import pandas as pd
 import numpy as np
 
 
-def avg_week_method(data_w_nan, country, year, atc, tech, datatype, val_col, header):
+def avg_week_method(origin_api, data_w_nan, country, year, atc, tech, datatype, val_col, header):
     """
     fills the gaps using lineare interpolation and average of the week
+    :param origin_api: if data is downloaded by the api
+    :type origin_api: boolean
     :param data_w_nan: dataframe containing the gaps
     :type data_w_nan: dataframe
     :param country: code of the country
@@ -72,17 +74,20 @@ def avg_week_method(data_w_nan, country, year, atc, tech, datatype, val_col, hea
     df_avg_week = pd.concat([df_w_nan_copy['DateTime'], pd.Series(avg_week)], axis=1)
     df_lin_avg_week = pd.concat([df_w_nan_copy['DateTime'], pd.Series(lin_avg_week)], axis=1)
 
-    # first check if folder exists to save data in
-    isExist = os.path.exists('data/' + datatype + '/' + str(year) + '/' + country + '/avg_week')
-    if not isExist:
-        os.makedirs('data/' + datatype + '/' + str(year) + '/' + country + '/avg_week')
+    # check were to save
+    if origin_api:
+        path = 'data/' + datatype + '/api_data/' + str(year) + '/' + country
+    else:
+        path = 'data/' + datatype + '/' + str(year) + '/' + country
 
+    # first check if folder exists to save data in
+    isExist = os.path.exists(path + '/avg_week')
+    if not isExist:
+        os.makedirs(path + '/avg_week')
     # save the filled df as csv
-    pd.DataFrame(df_avg_week).to_csv(
-        'data/' + datatype + '/' + str(year) + '/' + country + '/avg_week/' + atc + '_' + tech + '_avg_week.csv',
+    pd.DataFrame(df_avg_week).to_csv(path + '/avg_week/' + atc + '_' + tech + '_avg_week.csv',
         sep='\t', encoding='utf-8', index=False, header=header)
-    pd.DataFrame(df_lin_avg_week).to_csv(
-        'data/' + datatype + '/' + str(year) + '/' + country + '/avg_week/' + atc + '_' + tech + '_lin_avg_week.csv',
+    pd.DataFrame(df_lin_avg_week).to_csv(path + '/avg_week/' + atc + '_' + tech + '_lin_avg_week.csv',
         sep='\t', encoding='utf-8', index=False, header=header)
 
     return df_avg_week, df_lin_avg_week

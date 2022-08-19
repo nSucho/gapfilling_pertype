@@ -13,9 +13,11 @@ from fedot.utilities.ts_gapfilling import ModelGapFiller
 
 
 # can still not handle gaps in first 7 segments
-def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, header, fedot_window):
+def fedot_frwd_bi(origin_api, data_w_nan, country, year, atc, tech, datatype, val_col, header, fedot_window):
     """
     fill the gaps using fedot forward and bidirect
+    :param origin_api: if data is downloaded by the api
+    :type origin_api: boolean
     :param data_w_nan: dataframe containing the gaps
     :type data_w_nan: dataframe
     :param country: code of the country
@@ -57,11 +59,6 @@ def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, heade
     without_gap_forward = model_gapfiller.forward_filling(time_series)
     without_gap_bidirect = model_gapfiller.forward_inverse_filling(time_series)
 
-    # first check if folder exists to save data in
-    isExist = os.path.exists('data/' + datatype + '/' + str(year) + '/' + country + '/fedot')
-    if not isExist:
-        os.makedirs('data/' + datatype + '/' + str(year) + '/' + country + '/fedot')
-
     # combine filled values with date and time again
     df_forward = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_forward)], axis=1)
     df_bidirect = pd.concat([df_w_nan_copy['DateTime'], pd.Series(without_gap_bidirect)], axis=1)
@@ -69,11 +66,21 @@ def fedot_frwd_bi(data_w_nan, country, year, atc, tech, datatype, val_col, heade
     df_forward.columns = header
     df_bidirect.columns = header
 
+    # check were to save
+    if origin_api:
+        path = 'data/' + datatype + '/api_data/' + str(year) + '/' + country
+    else:
+        path = 'data/' + datatype + '/' + str(year) + '/' + country
+
+    # first check if folder exists to save data in
+    isExist = os.path.exists(path + '/fedot')
+    if not isExist:
+        os.makedirs(path + '/fedot')
     # save the combined df as csv
-    pd.DataFrame(df_forward).to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/fedot/' + atc + '_' + tech
-                                    + '_filled_forward.csv', sep='\t', encoding='utf-8', index=False, header=header)
-    pd.DataFrame(df_bidirect).to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/fedot/' + atc + '_' + tech
-                                     + '_filled_bidirect.csv', sep='\t', encoding='utf-8', index=False, header=header)
+    pd.DataFrame(df_forward).to_csv(path + '/fedot/' + atc + '_' + tech + '_filled_forward.csv',
+                                    sep='\t', encoding='utf-8', index=False, header=header)
+    pd.DataFrame(df_bidirect).to_csv(path + '/fedot/' + atc + '_' + tech + '_filled_bidirect.csv',
+                                     sep='\t', encoding='utf-8', index=False, header=header)
 
     return df_forward, df_bidirect
     #return df_forward

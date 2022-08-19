@@ -11,10 +11,12 @@ import glob
 np.random.seed(10)
 
 
-def read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps, copy_code, copy_atc, copy_tech,
+def read_in(origin_api, datatype, year, atc, country, tech, create_gaps, duplicate_gaps, copy_code, copy_atc, copy_tech,
             val_col, amount_gaps):
     """
     reads in the files needed for gap filling
+    :param origin_api: checks if data from API or not
+    :type origin_api: boolean
     :param datatype: type of the data
     :type datatype: string
     :param year: year of the gapless file
@@ -40,9 +42,14 @@ def read_in(datatype, year, atc, country, tech, create_gaps, duplicate_gaps, cop
     :return:
     :rtype:
     """
-    # read in the file
-    original = pd.read_csv('data/' + datatype + '/' + str(year) + '/' + country + '/' + str(year) + '_' + atc + '_' +
-                           tech + '.csv', sep='\t', encoding='utf-8')
+    if origin_api:
+        # read in the file
+        original = pd.read_csv('data/' + datatype + '/api_data/' + str(year) + '/' + country + '/' + country + '_' +
+                               tech + '.csv', sep='\t', encoding='utf-8')
+    else:
+        # read in the file
+        original = pd.read_csv('data/' + datatype + '/' + str(year) + '/' + country + '/' + str(year) + '_' + atc + '_'
+                               + tech + '.csv', sep='\t', encoding='utf-8')
     # set 'DateTime' as datetime-type
     original['DateTime'] = pd.to_datetime(original['DateTime'])
     # check if gaps should be created or duplicated, else just set the orignal as data_w_nan
