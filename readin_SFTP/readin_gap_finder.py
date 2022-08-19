@@ -6,7 +6,7 @@ Created on April 2022
 from datetime import datetime as dt
 from datetime import date
 import calendar
-import readin_aux
+from readin_SFTP import readin_aux
 import pandas as pd
 import numpy as np
 import warnings
@@ -15,9 +15,12 @@ pd.options.mode.chained_assignment = None  # default='warn'
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
-def check_for_gaps(file_df_original, areatypecode, country, technology, month, year, val_col, header, datatype):
+def check_for_gaps(origin_api, file_df_original, areatypecode, country, technology, month, year, val_col, header,
+                   datatype):
     """
     checks the original dataframe for gaps
+    :param origin_api: if the data is downloaded with the api
+    :type origin_api: boolean
     :param file_df_original: the original dataframe
     :type file_df_original: dataframe
     :param areatypecode: area type code of the original dataframe
@@ -44,9 +47,13 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
     # ----------
     # check if necessary folders exist, else create
     # ----------
-    readin_aux.create_path('data/' + datatype + '/' + str(year) + '/' + country + '/rawdata_sorted')
-    readin_aux.create_path('data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted')
-    readin_aux.create_path('data/' + datatype + '/' + str(year) + '/' + country + '/gaplists')
+    if origin_api:
+        path = ''
+    else:
+        path = 'data/' + datatype + '/' + str(year) + '/' + country
+    readin_aux.create_path(path + '/rawdata_sorted')
+    readin_aux.create_path(path + '/final_sorted')
+    readin_aux.create_path(path + '/gaplists')
 
     # some (country, ATC, Technology)-combinations do not exist, so catch the error for this countries
     try:
@@ -116,7 +123,7 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
         # print("last of the month is in list")
 
         # save the auxiliary-dataframe into a csv
-        act_data_df.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/rawdata_sorted/' + str(month) +
+        act_data_df.to_csv(path + '/rawdata_sorted/' + str(month) +
                            '_' + areatypecode + '_' + technology + '.csv', sep='\t', encoding='utf-8', index=False,
                            header=header)
 
@@ -146,14 +153,14 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
             # if the datatype is not '' we can drop the technology column
             if not datatype == 'agpt':
                 gap_df = gap_df.drop(gap_df.columns[3], axis=1)
-            gap_df.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/gaplists/' + str(month) + '_' +
+            gap_df.to_csv(path + '/gaplists/' + str(month) + '_' +
                           areatypecode + '_' + technology + '.csv', sep='\t', encoding='utf-8', index=False,
                           header=header)
             # concat both csv to have a list with filled in gaps then save as csv
-            sorted_tech_csv = pd.read_csv('data/' + datatype + '/' + str(year) + '/' + country + '/rawdata_sorted/' +
+            sorted_tech_csv = pd.read_csv(path + '/rawdata_sorted/' +
                                           str(month) + '_' + areatypecode + '_' + technology + '.csv', sep='\t',
                                           encoding='utf-8')
-            gap_list_csv = pd.read_csv('data/' + datatype + '/' + str(year) + '/' + country + '/gaplists/' +
+            gap_list_csv = pd.read_csv(path + '/gaplists/' +
                                        str(month) + '_' + areatypecode + '_' + technology + '.csv', sep='\t',
                                        encoding='utf-8')
             dataframes = [sorted_tech_csv, gap_list_csv]
@@ -162,19 +169,16 @@ def check_for_gaps(file_df_original, areatypecode, country, technology, month, y
             final_df.sort_values(by='DateTime', inplace=True)
             final_df.reset_index(drop=True, inplace=True)
             # save the final df as csv
-            final_df.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted/' + str(month) +
+            final_df.to_csv(path + '/final_sorted/' + str(month) +
                             '_' + areatypecode + '_' + technology + '_wgaps.csv', sep='\t', encoding='utf-8',
                             index=False, header=header)
         else:
             # print("there are no gaps")
-            #gap_df.to_csv(
-            #    'data/' + datatype + '/' + str(year) + '/' + country + '/gaplists/' + str(month) + '_' +
-            #    areatypecode + '_' + technology + '_empty.csv', sep='\t', encoding='utf-8', index=False)
             # sort everything on the DateTime-column and save as csv
             act_data_df.sort_values(by='DateTime', inplace=True)
             act_data_df.reset_index(drop=True, inplace=True)
             # save the final df as csv
-            act_data_df.to_csv('data/' + datatype + '/' + str(year) + '/' + country + '/final_sorted/' + str(month) +
+            act_data_df.to_csv(path + '/final_sorted/' + str(month) +
                                '_' + areatypecode + '_' + technology + '_nogaps.csv', sep='\t', encoding='utf-8',
                                index=False, header=header)
     except Exception as e:

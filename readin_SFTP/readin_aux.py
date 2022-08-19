@@ -9,16 +9,18 @@ import os
 import pandas as pd
 import numpy as np
 import pathlib
-import readin_gap_finder
-import readin_to_year
+from readin_SFTP import readin_gap_finder
+from readin_SFTP import readin_to_year
 import calendar
 import glob
 from datetime import date
 
 
-def process_files(files, datatype, val_col, header, year):
+def process_files(origin_api, files, datatype, val_col, header, year):
     """
     calls all necessary functions to sort the data properly
+    :param origin_api:
+    :type origin_api:
     :param files: path to the files needed
     :type files: list
     :param datatype: type of the data
@@ -43,11 +45,11 @@ def process_files(files, datatype, val_col, header, year):
         if datatype == 'agpt':
             technologies.update(list_technologies(file_df))
     # convert all to a dataframe and save them as files
-    pd.DataFrame(countries).to_csv('country_list.csv', sep='\t', encoding='utf-8', index=False, header=['Countries'])
-    pd.DataFrame(atcodes).to_csv('areatypecode_list.csv', sep='\t', encoding='utf-8', index=False,
+    pd.DataFrame(countries).to_csv('../country_list.csv', sep='\t', encoding='utf-8', index=False, header=['Countries'])
+    pd.DataFrame(atcodes).to_csv('../areatypecode_list.csv', sep='\t', encoding='utf-8', index=False,
                                  header=['AreaTypeCodes'])
     if datatype == 'agpt':
-        pd.DataFrame(technologies).to_csv('technology_list.csv', sep='\t', encoding='utf-8', index=False,
+        pd.DataFrame(technologies).to_csv('../technology_list.csv', sep='\t', encoding='utf-8', index=False,
                                           header=['Technologies'])
 
     for file in files:
@@ -72,14 +74,14 @@ def process_files(files, datatype, val_col, header, year):
             for atcode in atcodes:
                 for technology in technologies:
                     for country in countries:
-                        readin_gap_finder.check_for_gaps(file_df, atcode, country, technology, month, year, val_col,
-                                                         header, datatype)
+                        readin_gap_finder.check_for_gaps(origin_api, file_df, atcode, country, technology, month, year,
+                                                         val_col, header, datatype)
         # ActTotLoad
         elif datatype == 'totalload':
             for atcode in atcodes:
                 for country in countries:
-                    readin_gap_finder.check_for_gaps(file_df, atcode, country, 'noTech', month, year, val_col, header,
-                                                     datatype)
+                    readin_gap_finder.check_for_gaps(origin_api, file_df, atcode, country, 'noTech', month, year,
+                                                     val_col, header, datatype)
 
     # check if no monthly files are missing, else create (only for years which are completely over)
     current_year = date.today().year
@@ -238,7 +240,7 @@ def time_convert(sec):
 
     print("Time needed for the program = {0}:{1}:{2}".format(int(hours), int(mins), int(secs)))
 
-    with open("runtime.txt", "a") as file_object:
+    with open("../runtime.txt", "a") as file_object:
         file_object.write("Time needed for the program = {0}:{1}:{2}".format(int(hours), int(mins), int(secs)))
         file_object.write("\n")
 

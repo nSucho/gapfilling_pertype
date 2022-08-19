@@ -3,17 +3,17 @@ Created on April 2022
 
 @author: Niko Suchowitz
 """
-import numpy as np
 
-import readin_aux
+from readin_SFTP import readin_aux
 import glob
 import time
 from csv import *
 
 
-def readin_data(datatype, year):
+def readin_data(origin_api, datatype, year):
     """
     does some preperation for the sorting of the whole data and then starts the process
+    :param origin_api:
     :param datatype:
     :param year:
     :return:
@@ -49,7 +49,7 @@ def readin_data(datatype, year):
                           recursive=False)
 
     files.sort()
-    readin_aux.process_files(files, datatype, val_col, header, year)
+    readin_aux.process_files(origin_api, files, datatype, val_col, header, year)
 
     # stop time to check how long program was running
     end_time = time.time()
@@ -64,5 +64,6 @@ if __name__ == '__main__':
     year = '2021'
     # options for datatype => 'agpt' (ActGenPerType) or 'totalload'(ActTotLoad)
     datatype = 'totalload'
+    origin_api = False
 
-    readin_data(datatype, year)
+    readin_data(origin_api, datatype, year)
