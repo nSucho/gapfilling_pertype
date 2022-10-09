@@ -146,9 +146,8 @@ def calc_missing_data(df_to_check, year, country, areatypecode, technology, val_
                 'MissingPercentage': missing_percent}
 
     # save the country in the csv of countries with gaps
-    with open("countries_w_gaps_"+datatype+"_"+year+".csv", "a") as csvfile:
+    with open("readin_SFTP/countries_w_gaps_sftp_"+datatype+"_"+year+".csv", "a") as csvfile:
         # create a dict_writer object with the needed attributes
         dictwriter_object = csv.DictWriter(csvfile, delimiter='\t', fieldnames=field_names)
         # write the dict into the csv
         dictwriter_object.writerow(gap_dict)
-    # return missing_percent

@@ -15,12 +15,10 @@ pd.options.mode.chained_assignment = None  # default='warn'
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
-def check_for_gaps(origin_api, file_df_original, areatypecode, country, technology, month, year, val_col, header,
+def check_for_gaps(file_df_original, areatypecode, country, technology, month, year, val_col, header,
                    datatype):
     """
     checks the original dataframe for gaps
-    :param origin_api: if the data is downloaded with the api
-    :type origin_api: boolean
     :param file_df_original: the original dataframe
     :type file_df_original: dataframe
     :param areatypecode: area type code of the original dataframe
@@ -47,10 +45,7 @@ def check_for_gaps(origin_api, file_df_original, areatypecode, country, technolo
     # ----------
     # check if necessary folders exist, else create
     # ----------
-    if origin_api:
-        path = ''
-    else:
-        path = 'data/' + datatype + '/' + str(year) + '/' + country
+    path = 'data/' + datatype + '/' + str(year) + '/' + country
     readin_aux.create_path(path + '/rawdata_sorted')
     readin_aux.create_path(path + '/final_sorted')
     readin_aux.create_path(path + '/gaplists')

@@ -74,13 +74,13 @@ def process_files(origin_api, files, datatype, val_col, header, year):
             for atcode in atcodes:
                 for technology in technologies:
                     for country in countries:
-                        readin_gap_finder.check_for_gaps(origin_api, file_df, atcode, country, technology, month, year,
+                        readin_gap_finder.check_for_gaps(file_df, atcode, country, technology, month, year,
                                                          val_col, header, datatype)
         # ActTotLoad
         elif datatype == 'totalload':
             for atcode in atcodes:
                 for country in countries:
-                    readin_gap_finder.check_for_gaps(origin_api, file_df, atcode, country, 'noTech', month, year,
+                    readin_gap_finder.check_for_gaps(file_df, atcode, country, 'noTech', month, year,
                                                      val_col, header, datatype)
 
     # check if no monthly files are missing, else create (only for years which are completely over)
