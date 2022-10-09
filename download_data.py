@@ -148,7 +148,7 @@ def checkforgaps_api(file_df_original, areatypecode, country, technology, year, 
     :param datatype:
     :return:
     """
-    path = 'data/' + data_type + '/api_data/' + str(year) + '/' + country_code
+    path = 'data/' + datatype + '/api_data/' + str(year) + '/' + country
     create_path(path + '/rawdata_sorted')
     create_path(path + '/final_sorted')
     create_path(path + '/gaplists')
