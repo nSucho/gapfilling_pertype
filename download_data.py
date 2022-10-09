@@ -292,8 +292,7 @@ def calc_missing_data_api(df_to_check, year, country, areatypecode, technology, 
 
 
 if __name__ == '__main__':
-    # TODO: delete token before upload
-    token = '45b3f307-303e-4ddb-bdcc-138cae53cc63'
+    token = ''
     data_type = 'agpt'  # agpt or totalload
     year = 2022
     country_code = 'BA'
